@@ -26,7 +26,6 @@ uncomment from here down to line 42 to get the backend working.
 //$sql = mysqli_query($con,$query);
 
 //if (!$sql) {
-    //echo mysqli_errno($con) . ": " . mysqli_error($con) . "\n";
     //$message  = "Invalid query: " . mysqli_error($con) . "\nWhole query: " . $query;
     //die($message);
 //}
