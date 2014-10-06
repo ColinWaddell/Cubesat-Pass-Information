@@ -1,0 +1,109 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>ZACUBE-1 Live Information</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+
+    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="js/angular.min.js"></script>
+    <script src="js/zacube.angular.js"></script>
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body ng-app="ZACubeApp">
+
+    <div class="container" ng-controller="ZACubeCtrl">
+      <div class="header">
+        <h1 class="text-muted">ZACUBE-1 information</h1>
+        <h2>Up to date details of ZACUBE-1</h2>
+        <p>{{zacube.message}}</p>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-3">
+          <p class="lead"><a href="http://www.cput.ac.za/blogs/fsati/zacube-1/">Project Homepage</a><br />
+          <a href="http://en.wikipedia.org/wiki/ZACube-1">Information on Wikipedia</a></p>
+        </div>
+
+        <div class="col-lg-9">
+          <table class="table table-hover">
+            <tbody>
+              <tr>
+                <td>Current time (SAST)</td>
+                <td>{{zacube.current_time}}</td>
+              </tr>
+              <tr>
+                <td>Pass details calculated on</td>
+                <td>{{zacube.calculation_details}}</td>
+              </tr>
+              <tr>
+                <td>Next pass start:</td>
+                <td>{{zacube.next_pass}}</td>
+              </tr>
+              <tr>
+                <td>Next pass end</td>
+                <td>{{zacube.pass_ends}}</td>
+              </tr>
+              <tr>
+                <td>Next pass maximum elevation</td>
+                <td>{{zacube.max_elevation}}</td>
+              </tr>
+                <td>Time till end of pass</td>
+                <td>{{zacube.endofpass}}</td>
+              </tr>
+            </tbody>
+          </table>
+
+
+          <h3>Up-coming pass</h3>
+          <table class="table table-hover">
+            <tbody>
+              <tr>
+                <td>Pass Starts</td>
+                <td>{{zacube.upcoming_start}}</td>
+              </tr>              
+              <tr>
+                <td>Elevation</td>
+                <td>{{zacube.upcoming_elevation}}</td>
+              </tr>
+              <tr>
+                <td>Time till pass starts</td>
+                <td>{{zacube.nextpassstarts}}</td>
+              </tr>
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+
+      <div class="footer">
+        <p><a href="http://GitHub.com/ColinWaddell">Colin Waddell</a></p>
+      </div>
+
+    </div> <!-- /container -->
+
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+  </body>
+</html>
+
+
+
+ )
