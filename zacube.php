@@ -4,14 +4,6 @@ ini_set('display_errors', 'On');
 ini_set('display_warnings', 'On');
 date_default_timezone_set('Africa/Johannesburg');
 
-
-/******************************
-
-I can't promise it'll work straight away but you should be able to
-uncomment from here down to line 42 to get the backend working.
-
-******************************/
-
 $con=mysqli_connect($db_host, $db_user, $dp_pass, $mybd);
 
 // Check connection
