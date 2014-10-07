@@ -12,68 +12,36 @@ uncomment from here down to line 42 to get the backend working.
 
 ******************************/
 
-/*$con=mysqli_connect($db_host, $db_user, $dp_pass, $mybd);*/
+$con=mysqli_connect($db_host, $db_user, $dp_pass, $mybd);
 
-//// Check connection
-//if (mysqli_connect_errno()) {
-  //echo "Failed to connect to MySQL: " . mysqli_connect_error();
-//}
+// Check connection
+if (mysqli_connect_errno()) {
+  echo "Failed to connect to MySQL: " . mysqli_connect_error();
+}
 
-////$query = sprintf("SELECT * FROM passes WHERE aos > '%s' ORDER BY aos",  date("Y-m-d H:i:s",(time()-60*30)) );
-////$query = sprintf("SELECT * FROM passes WHERE aos > '%s' ORDER BY aos",  date("Y-m-d H:i:s") );
-//$query = sprintf("SELECT * FROM passes WHERE los > '%s' ORDER BY los",  date("Y-m-d H:i:s") );
+//$query = sprintf("SELECT * FROM passes WHERE aos > '%s' ORDER BY aos",  date("Y-m-d H:i:s",(time()-60*30)) );
+//$query = sprintf("SELECT * FROM passes WHERE aos > '%s' ORDER BY aos",  date("Y-m-d H:i:s") );
+$query = sprintf("SELECT * FROM passes WHERE los > '%s' ORDER BY los",  date("Y-m-d H:i:s") );
 
-//$sql = mysqli_query($con,$query);
+$sql = mysqli_query($con,$query);
 
-//if (!$sql) {
-    //echo mysqli_errno($con) . ": " . mysqli_error($con) . "\n";
-    //$message  = "Invalid query: " . mysqli_error($con) . "\nWhole query: " . $query;
-    //die($message);
-//}
+if (!$sql) {
+    echo mysqli_errno($con) . ": " . mysqli_error($con) . "\n";
+    $message  = "Invalid query: " . mysqli_error($con) . "\nWhole query: " . $query;
+    die($message);
+}
 
-//$row = mysqli_fetch_array($sql);
+$row = mysqli_fetch_array($sql);
 
-//while($row = mysqli_fetch_array($sql))
-//{
-	//$upcoming_start = $row[1];
-        //$upcoming_elevation = $row[3];
-//}
+while($row_up = mysqli_fetch_array($sql))
+{
+        $upcoming_start = $row_up[1];
+        $upcoming_elevation = $row_up[3];
+}
 
-/*mysqli_close($con);*/
+mysqli_close($con);
 
-
-/************
-
-  So since I can't actually retrieve $row from the database
-  I'm just creating a fake pre-loaded version.
-
-
-  WHEN RUNNING THIS CODE ON YOUR SERVER DELTE BETWEEN HERE
-  >>>>>>>>>>>>>>>>
-************/
-
-$row = array (
-          "2014-10-06 20:50:39",
-          "2014-10-06 02:57:34",
-          "2014-10-06 22:20:22",
-          "26 degrees above horizon"
-        );
-
-/*******
-  <<<<<<<<<<<<<<<<<
-  AND HERE
-********/
-
-
-
-// REMOVE THESE COMMENTS. I left the while loop in so you
-// can see what to do above.
-
-//while($row = mysqli_fetch_array($sql))
-//{
-  $upcoming_start = $row[1];
-  $upcoming_elevation = $row[3];
-//}
+//print_r($row);
 
 echo json_encode(array (
         'message' => "ZACUBE-1 next pass information for Cape Town",
