@@ -19,8 +19,6 @@ if (mysqli_connect_errno()) {
   echo "Failed to connect to MySQL: " . mysqli_connect_error();
 }
 
-//$query = sprintf("SELECT * FROM passes WHERE aos > '%s' ORDER BY aos",  date("Y-m-d H:i:s",(time()-60*30)) );
-//$query = sprintf("SELECT * FROM passes WHERE aos > '%s' ORDER BY aos",  date("Y-m-d H:i:s") );
 $query = sprintf("SELECT * FROM passes WHERE los > '%s' ORDER BY los",  date("Y-m-d H:i:s") );
 
 $sql = mysqli_query($con,$query);
@@ -41,8 +39,6 @@ while($row_up = mysqli_fetch_array($sql))
 
 mysqli_close($con);
 
-//print_r($row);
-
 echo json_encode(array (
         'message' => "ZACUBE-1 next pass information for Cape Town",
         'current_time' => date("Y-m-d H:i:s"),
@@ -60,13 +56,5 @@ echo json_encode(array (
 
 
 ?>
-
-
-
-
-
-
-
-
 
 
