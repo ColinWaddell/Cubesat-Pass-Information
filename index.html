@@ -12,11 +12,14 @@
 
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/zacube.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
 
     <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+    <script src="js/moment.min.js"></script>
+    <script src="js/readable-range.js"></script>
     <script src="js/angular.min.js"></script>
     <script src="js/zacube.angular.js"></script>
 
@@ -32,9 +35,10 @@
     <div class="container" ng-controller="ZACubeCtrl">
       <div class="header">
         <h1 class="text-muted">ZACUBE-1 information</h1>
-        <h2>Up to date details of ZACUBE-1</h2>
+        <h2>Up to date details of ZACUBE-1
+          <div ng-show="zacube.loadingData" class="spinner"></div></h2>
         <p>{{zacube.message}}</p>
-        <p ng-show="!zacube.message">Loading Data...</p>
+        <p ng-show="zacube.loadingData">Loading Data...</p>
       </div>
 
       <div class="row">
@@ -44,18 +48,19 @@
         </div>
 
         <div class="col-lg-9">
+          <h3>Next pass</h3>
           <table class="table table-hover">
             <tbody>
               <tr>
                 <td>Current time (SAST)</td>
-                <td>{{zacube.current_time}}</td>
+                <td>{{zacube.current_time_nice}}</td>
               </tr>
               <tr>
                 <td>Pass details calculated on</td>
                 <td>{{zacube.calculation_details}}</td>
               </tr>
               <tr>
-                <td>Next pass start:</td>
+                <td>Next pass start</td>
                 <td>{{zacube.next_pass}}</td>
               </tr>
               <tr>
@@ -66,16 +71,23 @@
                 <td>Next pass maximum elevation</td>
                 <td>{{zacube.max_elevation}}</td>
               </tr>
-                <td>Time till end of pass</td>
-                <td>{{zacube.endofpass}}</td>
+              <tr>
+                <td>Time till start of pass</td>
+                <td>{{zacube.startofpass_nice}}</td>
               </tr>
-            </tbody>
-          </table>
+              <tr>
+                <td>Time till end of pass</td>
+                <td>{{zacube.endofpass_nice}}</td>
+              </tr>
+              <tr>
+                <td>
+                  <h3>Up-coming pass</h3>
+                </td>
+                <td>&nbsp;</td>
+              </tr>              
+              <tr>
 
 
-          <h3>Up-coming pass</h3>
-          <table class="table table-hover">
-            <tbody>
               <tr>
                 <td>Pass Starts</td>
                 <td>{{zacube.upcoming_start}}</td>
@@ -86,7 +98,7 @@
               </tr>
               <tr>
                 <td>Time till pass starts</td>
-                <td>{{zacube.nextpassstarts}}</td>
+                <td>{{zacube.nextpassstarts_nice}}</td>
               </tr>
             </tbody>
           </table>
