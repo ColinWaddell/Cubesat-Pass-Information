@@ -23,7 +23,7 @@ app.controller("ZACubeCtrl", function($scope, $http, $timeout) {
     $timeout(function() {
       $scope.getData();
       $scope.intervalFunction();
-    }, 1000)
+    }, 2500)
   };
 
   // Kick off the interval
