@@ -1,6 +1,6 @@
 
 var app = angular.module("ZACubeApp", []);
-var url = "http://gear.colinwaddell.com/zacube.php";
+var url = "http://leonsteenkamp.co.za/collin/zacube.php";
 
 app.controller("ZACubeCtrl", function($scope, $http, $timeout) {
 
