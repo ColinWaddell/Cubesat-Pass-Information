@@ -42,7 +42,7 @@ app.controller("ZACubeCtrl", function($scope, $http, $timeout) {
     }
     
     $scope._current_time.add(1, 's')
-    $scope.zacube.current_time_nice = $scope._current_time.format('YYYY-MM-DD hh:mm:ss');
+    $scope.zacube.current_time_nice = $scope._current_time.format('YYYY-MM-DD HH:mm:ss');
     
     $scope.zacube.endofpass_nice = moment.preciseDiff($scope._endofpass, $scope.zacube._current_time);
     $scope.zacube.startofpass_nice = moment.preciseDiff($scope._startofpass, $scope.zacube._current_time);
