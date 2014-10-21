@@ -45,7 +45,7 @@ app.controller("ZACubeCtrl", function($scope, $http, $timeout) {
     $scope.zacube.current_time_nice = $scope._current_time.format('YYYY-MM-DD HH:mm:ss');
     
     $scope.zacube.endofpass_nice = moment.preciseDiff($scope._endofpass, $scope.zacube._current_time);
-    $scope.zacube.startofpass_nice = moment.preciseDiff($scope._startofpass, $scope.zacube._current_time);
+    $scope.zacube.startofpass_nice = moment.preciseDiff($scope._startofpass, $scope.zacube._current_time); // Need to check if -ive and ad the word "ago" to the output
     $scope.zacube.nextpassstarts_nice = moment.preciseDiff($scope._nextpassstarts, $scope.zacube._current_time);
 
     if(!moment($scope._current_time).isBefore($scope._nextpassstarts))
