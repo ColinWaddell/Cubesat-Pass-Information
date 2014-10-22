@@ -132,4 +132,4 @@ for date in datetime_periodic():
     })
 
 """ Return a json formatted output """
-print 'JSON:', json.dumps(recent_data)
+print json.dumps(recent_data)
