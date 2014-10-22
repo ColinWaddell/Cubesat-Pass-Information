@@ -2,7 +2,7 @@
 include_once("config.php");
 ini_set('display_errors', 'On');
 ini_set('display_warnings', 'On');
-date_default_timezone_set('Africa/Johannesburg');
+date_default_timezone_set('Europe/London');
 
 $con=mysqli_connect($db_host, $db_user, $dp_pass, $mybd);
 
@@ -32,7 +32,7 @@ while($row_up = mysqli_fetch_array($sql))
 mysqli_close($con);
 
 echo json_encode(array (
-        'message' => "ZACUBE-1 next pass information for Cape Town",
+        'message' => "UKube-1 pass information for Glasgow",
         'current_time' => date("Y-m-d H:i:s"),
         'calculation_details' => $row[0],
         'next_pass' => $row[1],
