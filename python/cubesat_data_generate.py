@@ -86,8 +86,7 @@ def GetTLE(satName=None):
     # clean up the lines
     tles = [(tles[i],tles[i+1],tles[i+2]) for i in xrange(0,len(tles)-2,3)]
 
-    tle = [ '', # TLE needs 4 lines
-            '',
+    tle = [ '',
             '',
             ''
           ]
@@ -95,7 +94,6 @@ def GetTLE(satName=None):
     for s in tles:
         for a in s:
             if satName in a:
-                tle[0] = satName
                 tle[0] = s[0]
                 tle[1] = s[1]
                 tle[2] = s[2]
