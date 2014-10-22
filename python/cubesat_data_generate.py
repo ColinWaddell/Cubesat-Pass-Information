@@ -59,9 +59,9 @@ def datetime_periodic(now=None):
     date_to   = now + datetime.timedelta(seconds= 30*90)
 
     dates=[]
-    while now<=date_to:
+    while date_from<=date_to:
         dates.append(now)
-        now+=datetime.timedelta(seconds=30)
+        date_from+=datetime.timedelta(seconds=30)
 
     return dates
 
