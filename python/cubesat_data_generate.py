@@ -86,7 +86,7 @@ def GetTLE(satName=None):
     # clean up the lines
     tles = [(tles[i],tles[i+1],tles[i+2]) for i in xrange(0,len(tles)-2,3)]
 
-    tle = [ '', 
+    tle = [ '', # TLE needs 4 lines
             '',
             '',
             ''
@@ -104,13 +104,22 @@ def GetTLE(satName=None):
 
 
 
+""" ===========================================================================
+    ===========================================================================
+    Calculate UKUBE's position at a bunch of times, and output a json result
 
+"""
 
+""" Grab the current TLE data for UKUBE"""
 tle_data = GetTLE()
 
-
+""" Hold the position data at various times"""
 recent_data = []
 
+""" Loop  through an array of time, 90 mins
+    in the past, to 90 mins in the future,
+    incrementing every 30 seconds.
+"""
 for date in datetime_periodic():
     satellite_data = get_location(tle_data, date)
 
@@ -122,4 +131,5 @@ for date in datetime_periodic():
         }
     })
 
+""" Return a json formatted output """
 print 'JSON:', json.dumps(recent_data)
