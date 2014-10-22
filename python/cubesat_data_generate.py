@@ -15,6 +15,7 @@ from math import degrees
 from calendar import timegm
 
 
+CELESTRAK_URL = 'http://www.celestrak.com/NORAD/elements/cubesat.txt'
 
 def get_location(tle, now=None, lat=None, lng=None):
     """Compute the current location of the satellite specified in tle.
@@ -48,7 +49,6 @@ def get_location(tle, now=None, lat=None, lng=None):
             'name': satellite.name}
     return data
 
-
     
 def datetime_periodic(now=None):
     """ Produce an array of dates, separated by 30 second spanning
@@ -68,8 +68,6 @@ def datetime_periodic(now=None):
     return dates
 
 
-
-
 def GetTLE(satName=None):
     """ Grab the celestrak TLE data for cubesat of name satName
         Returns an array with each line a string of TLE data.
@@ -78,7 +76,7 @@ def GetTLE(satName=None):
     satName = satName or "UKUBE"
 
     # grab the latest keps
-    tles = urllib2.urlopen('http://www.celestrak.com/NORAD/elements/cubesat.txt').readlines()
+    tles = urllib2.urlopen(CELESTRAK_URL).readlines()
 
     # strip off the header tokens and newlines
     tles = [item.strip() for item in tles]
@@ -133,3 +131,6 @@ for date in datetime_periodic():
 
 """ Return a json formatted output """
 print json.dumps(recent_data)
+
+
+
