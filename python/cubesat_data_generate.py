@@ -68,7 +68,8 @@ def datetime_periodic(now=None):
         90 minutes prior to current moment, to 90 minutes future.
         Returns an array of datetime objects.
     """
-    now = now or datetime.utcnow()
+    GMT = Zone(1,False,'GMT')
+    now = now or datetime.now(GMT)
     date_from = now + timedelta(seconds=-30*90)
     date_to   = now + timedelta(seconds= 30*90)
 
@@ -120,8 +121,6 @@ def GetTLE(satName=None):
 
 """ Grab the current TLE data for UKUBE"""
 tle_data = GetTLE()
-GMT = Zone(0,False,'GMT')
-TZ = datetime.now(GMT).strftime('%Z')
 
 """ Hold the position data at various times"""
 recent_data = []
@@ -134,7 +133,7 @@ for date in datetime_periodic():
     satellite_data = get_location(tle_data, date)
 
     recent_data.append({
-        'datetime' : date.strftime('%Y-%m-%d %H:%M:%S ') + TZ,
+        'datetime' : date.strftime('%Y-%m-%d %H:%M:%S %Z'),
         'position' : {
             'latitude'  : satellite_data['position']['latitude'],
             'longitude' : satellite_data['position']['longitude']
