@@ -8,13 +8,27 @@ import string
 import ephem
 import urllib2
 import argparse
-import datetime
 import json
+import datetime
 
+from datetime import datetime,tzinfo,timedelta
 from math import degrees
 from calendar import timegm
 
+CELESTRAK_URL = 'http://www.celestrak.com/NORAD/elements/cubesat.txt'
 
+
+class Zone(tzinfo):
+  def __init__(self,offset,isdst,name):
+    self.offset = offset
+    self.isdst = isdst
+    self.name = name
+  def utcoffset(self, dt):
+    return timedelta(hours=self.offset) + self.dst(dt)
+  def dst(self, dt):
+    return timedelta(hours=1) if self.isdst else timedelta(0)
+  def tzname(self,dt):
+    return self.name
 
 def get_location(tle, now=None, lat=None, lng=None):
     """Compute the current location of the satellite specified in tle.
@@ -48,26 +62,22 @@ def get_location(tle, now=None, lat=None, lng=None):
             'name': satellite.name}
     return data
 
-
     
 def datetime_periodic(now=None):
     """ Produce an array of dates, separated by 30 second spanning
         90 minutes prior to current moment, to 90 minutes future.
         Returns an array of datetime objects.
     """
-    now = now or datetime.datetime.utcnow()
-    date_from = now + datetime.timedelta(seconds=-30*90)
-    date_to   = now + datetime.timedelta(seconds= 30*90)
-
+    now = now or datetime.utcnow()
+    date_from = now + timedelta(seconds=-30*90)
+    date_to   = now + timedelta(seconds= 30*90)
 
     dates=[]
-    while now<=date_to:
-        dates.append(now)
-        now+=datetime.timedelta(seconds=30)
+    while date_from<=date_to:
+        dates.append(date_from)
+        date_from+=timedelta(seconds=30)
 
     return dates
-
-
 
 
 def GetTLE(satName=None):
@@ -78,7 +88,7 @@ def GetTLE(satName=None):
     satName = satName or "UKUBE"
 
     # grab the latest keps
-    tles = urllib2.urlopen('http://www.celestrak.com/NORAD/elements/cubesat.txt').readlines()
+    tles = urllib2.urlopen(CELESTRAK_URL).readlines()
 
     # strip off the header tokens and newlines
     tles = [item.strip() for item in tles]
@@ -86,8 +96,7 @@ def GetTLE(satName=None):
     # clean up the lines
     tles = [(tles[i],tles[i+1],tles[i+2]) for i in xrange(0,len(tles)-2,3)]
 
-    tle = [ '', 
-            '',
+    tle = [ '',
             '',
             ''
           ]
@@ -95,7 +104,6 @@ def GetTLE(satName=None):
     for s in tles:
         for a in s:
             if satName in a:
-                tle[0] = satName
                 tle[0] = s[0]
                 tle[1] = s[1]
                 tle[2] = s[2]
@@ -104,22 +112,37 @@ def GetTLE(satName=None):
 
 
 
+""" ===========================================================================
+    ===========================================================================
+    Calculate UKUBE's position at a bunch of times, and output a json result
 
+"""
 
+""" Grab the current TLE data for UKUBE"""
 tle_data = GetTLE()
+GMT = Zone(0,False,'GMT')
+TZ = datetime.now(GMT).strftime('%Z')
 
-
+""" Hold the position data at various times"""
 recent_data = []
 
+""" Loop  through an array of time, 90 mins
+    in the past, to 90 mins in the future,
+    incrementing every 30 seconds.
+"""
 for date in datetime_periodic():
     satellite_data = get_location(tle_data, date)
 
     recent_data.append({
-        'datetime' : date.ctime(),
+        'datetime' : date.strftime('%Y-%m-%d %H:%M:%S ') + TZ,
         'position' : {
             'latitude'  : satellite_data['position']['latitude'],
             'longitude' : satellite_data['position']['longitude']
         }
     })
 
+""" Return a json formatted output """
 print json.dumps(recent_data)
+
+
+
