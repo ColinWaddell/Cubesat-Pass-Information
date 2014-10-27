@@ -43,6 +43,7 @@
         sat_arc = []
         prev_position = null;
         current_position = null;
+        ukube_location = []
         $.each(data, function(index, location){
           current_position = 
             {
@@ -59,7 +60,7 @@
            prev_position = current_position;
         });
 
-        arcs.arc( sat_arc,  {strokeWidth: 1, arcSharpness: 0});
+        arcs.arc( sat_arc,  {strokeWidth: 1, arcSharpness: 0, animationSpeed: 0});
       })
         .done(function() {
         })
