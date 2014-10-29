@@ -23,6 +23,13 @@
     <script src="js/angular.min.js"></script>
     <script src="js/zacube.angular.js"></script>
 
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://d3js.org/topojson.v1.min.js"></script>
+    <script src="d3_angular/jquery-2.1.1.min.js"></script>
+    <script src="d3_angular/datamaps.world.min.js"></script>
+    <link href="d3_angular/style.css" rel="stylesheet">
+
+
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
@@ -45,6 +52,7 @@
           <p ng-show="zacube.loadingData">Loading Data...</p>
           <p class="lead"><a href="http://www.clyde-space.com/ukube-1">Project Homepage</a><br />
           <a href="https://www.gov.uk/government/news/ukube-1-update">News about UKube-1</a></p>
+          <div id="container" style="position: relative; margin: 0 auto; width: 360px; height: 240px;"></div>
         </div>
 
         <div class="col-lg-8">
@@ -109,6 +117,7 @@
 
     </div> <!-- /container -->
 
+    <script src="d3_angular/ukube.datamap.js"></script>
 
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
   </body>

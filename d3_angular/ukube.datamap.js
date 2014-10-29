@@ -2,19 +2,14 @@ var map = new Datamap({
   element: document.getElementById("container"),
   scope: 'world',
   projection: 'equirectangular',
-  fills: {
-    defaultFill: "#ABDDA4",
-    lt50: 'rgba(0,244,244,0.9)',
-    gt50: 'red'
-  },
   geographyConfig: {
-      hideAntarctica: false,
+      hideAntarctica: true,
       popupOnHover: false, //disable the popup while hovering
       highlightOnHover: false
   },
   fills: {
-    defaultFill: '#ABDDA4',
-    UKUBE: 'blue'
+    defaultFill: 'rgb(57, 118, 171)',
+    UKUBE: '#444444'
   }
 });
 
@@ -134,15 +129,14 @@ var jqxhr = $.get( "../ukube_position.json", function( data ) {
 
   map.bubbles([
     {
-      radius: 25,
-      yeild: 15000,
+      radius: 10,
       fillKey: 'UKUBE',
       date: 'middle.origin.datetime',
       latitude: middle.origin.latitude,
       longitude: middle.origin.longitude
     }], {
     popupTemplate: function(geo, data) {
-      return '<div class="hoverinfo">Info about UKUBE</div>';
+      return '';//  '<div class="hoverinfo">Info about UKUBE</div>';
     }
   });
 
