@@ -16,9 +16,9 @@ from math import degrees
 from calendar import timegm
 
 CELESTRAK_URL = 'http://www.celestrak.com/NORAD/elements/cubesat.txt'
-TIME_MAX = 270
-TIME_MIN = 270
-TIME_INC = 90
+TIME_MAX = 90
+TIME_MIN = 180
+TIME_INC = 180
 
 
 class Zone(tzinfo):

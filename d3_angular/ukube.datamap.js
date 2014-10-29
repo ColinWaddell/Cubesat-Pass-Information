@@ -84,7 +84,7 @@ function handleSatTrajectory (layer, data, options) {
             return "M" + originXY[0] + ',' + originXY[1] + "S" + midXY[0] +  "," + midXY[1] + "," + destXY[0] + "," + destXY[1]; 
         })
         .style('opacity', function(datum){
-            var opacity = Math.pow(datum.index < (totalNodes/2) ? (2*datum.index)/totalNodes : 2 - ((2*datum.index)/totalNodes), 3);
+            var opacity = Math.pow(datum.index < (totalNodes/2) ? (2*datum.index)/totalNodes : 2 - ((2*datum.index)/totalNodes), 4);
             console.log(Number(opacity).noExponents());
             return Number(opacity).noExponents();
         });
@@ -107,7 +107,7 @@ var jqxhr = $.get( "../ukube_position.json", function( data ) {
   sat_arc = []
   prev_position = null;
   current_position = null;
-  data = JSON.parse(data);
+  //data = JSON.parse(data);
   $.each(data, function(index, location){
     current_position = 
       {
