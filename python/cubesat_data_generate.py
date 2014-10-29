@@ -16,6 +16,9 @@ from math import degrees
 from calendar import timegm
 
 CELESTRAK_URL = 'http://www.celestrak.com/NORAD/elements/cubesat.txt'
+TIME_MAX = 270
+TIME_MIN = 270
+TIME_INC = 90
 
 
 class Zone(tzinfo):
@@ -70,8 +73,8 @@ def datetime_periodic(now=None):
     """
     GMT = Zone(1,False,'GMT')
     now = now or datetime.now(GMT)
-    date_from = now + timedelta(seconds=-30*90)
-    date_to   = now + timedelta(seconds= 30*90)
+    date_from = now + timedelta(seconds=-TIME_INC*TIME_MIN)
+    date_to   = now + timedelta(seconds= TIME_INC*TIME_MAX)
 
     dates=[]
     while date_from<=date_to:

@@ -1,19 +1,41 @@
 var map = new Datamap({
   element: document.getElementById("container"),
   scope: 'world',
-  projection: 'mercator',
+  projection: 'equirectangular',
   fills: {
     defaultFill: "#ABDDA4",
-    win: '#0fa0fa'
+    lt50: 'rgba(0,244,244,0.9)',
+    gt50: 'red'
   },
   geographyConfig: {
-      hideAntarctica: true,
+      hideAntarctica: false,
       popupOnHover: false, //disable the popup while hovering
       highlightOnHover: false
+  },
+  fills: {
+    defaultFill: '#ABDDA4',
+    UKUBE: 'blue'
   }
 });
 
 
+Number.prototype.noExponents= function(){
+    var data= String(this).split(/[eE]/);
+    if(data.length== 1) return data[0]; 
+
+    var  z= '', sign= this<0? '-':'',
+    str= data[0].replace('.', ''),
+    mag= Number(data[1])+ 1;
+
+    if(mag<0){
+        z= sign + '0.';
+        while(mag++) z += '0';
+        return z + str.replace(/^\-/,'');
+    }
+    mag -= str.length;  
+    while(mag--) z += '0';
+    return str + z;
+}
 
 function handleSatTrajectory (layer, data, options) {
     var self = this,
@@ -27,7 +49,14 @@ function handleSatTrajectory (layer, data, options) {
       options = defaultOptions.arcConfig;
     }
 
-    var arcs = layer.selectAll('path.datamaps-arc').data( data, JSON.stringify );
+    var arcs = layer.selectAll('path.datamaps-arc').data( data, 
+      function(d,i){
+        d.index = i;
+        d = JSON.stringify(d); 
+       return d;
+      });
+
+    var totalNodes = data.length;
 
     arcs
       .enter()
@@ -51,33 +80,15 @@ function handleSatTrajectory (layer, data, options) {
             var originXY = self.latLngToXY(datum.origin.latitude, datum.origin.longitude);
             var destXY = self.latLngToXY(datum.destination.latitude, datum.destination.longitude);
             var midXY = [ (originXY[0] + destXY[0]) / 2, (originXY[1] + destXY[1]) / 2];
-            return "M" + originXY[0] + ',' + originXY[1] + "S" + (midXY[0] + (50 * options.arcSharpness)) + "," + (midXY[1] - (75 * options.arcSharpness)) + "," + destXY[0] + "," + destXY[1];
+           
+            return "M" + originXY[0] + ',' + originXY[1] + "S" + midXY[0] +  "," + midXY[1] + "," + destXY[0] + "," + destXY[1]; 
         })
-        .transition()
-          .delay(100)
-          .style('fill', function() {
-            /*
-              Thank you Jake Archibald, this is awesome.
-              Source: http://jakearchibald.com/2013/animated-line-drawing-svg/
-            */
-            var length = this.getTotalLength();
-            this.style.transition = this.style.WebkitTransition = 'none';
-            this.style.strokeDasharray = length + ' ' + length;
-            this.style.strokeDashoffset = length;
-            this.getBoundingClientRect();
-            this.style.transition = this.style.WebkitTransition = 'stroke-dashoffset ' + options.animationSpeed + 'ms ease-out';
-            this.style.strokeDashoffset = '0';
-            return 'none';
-          })
-
-    arcs.exit()
-      .transition()
-      .style('opacity', 0)
-      .remove();
+        .style('opacity', function(datum){
+            var opacity = Math.pow(datum.index < (totalNodes/2) ? (2*datum.index)/totalNodes : 2 - ((2*datum.index)/totalNodes), 3);
+            console.log(Number(opacity).noExponents());
+            return Number(opacity).noExponents();
+        });
 }
-
-
-
 
 
 
@@ -96,14 +107,17 @@ var jqxhr = $.get( "../ukube_position.json", function( data ) {
   sat_arc = []
   prev_position = null;
   current_position = null;
+  data = JSON.parse(data);
   $.each(data, function(index, location){
     current_position = 
       {
         latitude: location.position.latitude, 
-        longitude: location.position.longitude
+        longitude: location.position.longitude,
+        datetime: location.datetime
       };
 
-     if (prev_position!=null){
+     if (prev_position!=null 
+         && prev_position.longitude > current_position.longitude){
          sat_arc.push({
           origin: prev_position,
           destination: current_position
@@ -112,7 +126,24 @@ var jqxhr = $.get( "../ukube_position.json", function( data ) {
      prev_position = current_position;
   });
 
-  map.sat_trajectory( sat_arc,  {strokeWidth: 1, arcSharpness: 0, animationSpeed: 0});
+  map.sat_trajectory( sat_arc,  {strokeWidth: 1, strokeColor: '#DD1C77', animationSpeed: 1000});
+
+  var middle = sat_arc[ Math.round(sat_arc.length/2) ];
+
+  map.bubbles([
+    {
+      radius: 25,
+      yeild: 15000,
+      fillKey: 'UKUBE',
+      date: 'middle.origin.datetime',
+      latitude: middle.origin.latitude,
+      longitude: middle.origin.longitude
+    }], {
+    popupTemplate: function(geo, data) {
+      return '<div class="hoverinfo">Info about UKUBE</div>';
+    }
+  });
+
 })
 .done(function() {
 })
