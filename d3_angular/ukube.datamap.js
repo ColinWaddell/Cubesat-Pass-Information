@@ -107,7 +107,9 @@ var jqxhr = $.get( "../ukube_position.json", function( data ) {
   sat_arc = []
   prev_position = null;
   current_position = null;
-  //data = JSON.parse(data);
+  if (typeof(data) === "string"){
+    data = JSON.parse(data);
+  }
   $.each(data, function(index, location){
     current_position = 
       {
