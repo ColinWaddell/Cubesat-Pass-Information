@@ -16,9 +16,9 @@ from math import degrees
 from calendar import timegm
 
 CELESTRAK_URL = 'http://www.celestrak.com/NORAD/elements/cubesat.txt'
-TIME_MAX = 90
+TIME_MAX = 180
 TIME_MIN = 180
-TIME_INC = 180
+TIME_INC = 90
 
 
 class Zone(tzinfo):
@@ -71,7 +71,7 @@ def datetime_periodic(now=None):
         90 minutes prior to current moment, to 90 minutes future.
         Returns an array of datetime objects.
     """
-    GMT = Zone(1,False,'GMT')
+    GMT = Zone(0,False,'GMT')
     now = now or datetime.now(GMT)
     date_from = now + timedelta(seconds=-TIME_INC*TIME_MIN)
     date_to   = now + timedelta(seconds= TIME_INC*TIME_MAX)
