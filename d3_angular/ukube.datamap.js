@@ -17,14 +17,135 @@ Number.prototype.noExponents= function(){
     return str + z;
 }
 
+Date.prototype.subTime= function(h,m){
+  this.setHours(this.getHours()-h);
+  this.setMinutes(this.getMinutes()-m);
+  return this;
+}
+
+Date.prototype.addTime= function(h,m){
+  this.setHours(this.getHours()+h);
+  this.setMinutes(this.getMinutes()+m);
+  return this;
+}
+
+
+function satelliteModel(TLEData){
+  var properties = 
+  {
+    _data:{
+      TLE:[]
+    }
+  };
+
+  var plugin = {
+    settings: {
+
+    },
+
+    init: function(TLEData){
+      this._data.TLE = TLEData;
+      this.updateModel();
+    },
+
+    updateModel: function(TLEData){
+      // Make sure we've got valid TLE to work with
+      if (typeof(TLEData)!=="object")
+        TLEData = this._data.TLE;
+
+      if (typeof(TLEData)!=="object")
+        return;
+
+      // Update our TLE data
+      this._data.TLE = TLEData; 
+
+      // Build our satellite
+      this.satellite = satellite.twoline2satrec (
+                        this._data.TLE[1], 
+                        this._data.TLE[2]);
+           
+    },
+
+    getLatLng: function(datetime){
+
+      var now;
+      if (typeof(datetime)==="undefined")
+        now = new Date();
+      else
+        now = new Date(datetime);
+
+      // NOTE: while Javascript Date returns months in range 0-11, all satellite.js methods require months in range 1-12.
+      var position_and_velocity = satellite.propagate (
+                                    this.satellite,
+                                    now.getUTCFullYear(), 
+                                    now.getUTCMonth() + 1, // Note, this function requires months in range 1-12. 
+                                    now.getUTCDate(),
+                                    now.getUTCHours(), 
+                                    now.getUTCMinutes(), 
+                                    now.getUTCSeconds());
+
+      // The position_velocity result is a key-value pair of ECI coordinates.
+      // These are the base results from which all other coordinates are derived.
+      var position_eci = position_and_velocity["position"];
+
+      // You will need GMST for some of the coordinate transforms
+      // Also, be aware that the month range is 1-12, not 0-11.
+      var gmst = satellite.gstime_from_date (now.getUTCFullYear(), 
+                                             now.getUTCMonth() + 1, // Note, this function requires months in range 1-12. 
+                                             now.getUTCDate(),
+                                             now.getUTCHours(), 
+                                             now.getUTCMinutes(), 
+                                             now.getUTCSeconds());
+
+
+      // You can get ECF, Geodetic, Look Angles, and Doppler Factor.
+      var position_gd    = satellite.eci_to_geodetic (position_eci, gmst);
+
+      // Geodetic coords are accessed via "longitude", "latitude", "height".
+      var longitude = position_gd["longitude"];
+      var latitude  = position_gd["latitude"];
+
+      //  Convert the RADIANS to DEGREES for pretty printing (appends "N", "S", "E", "W". etc).
+      var longitude_str = satellite.degrees_long (longitude);
+      var latitude_str  = satellite.degrees_lat  (latitude);          
+
+      return { longitude: longitude_str, latitude: latitude_str };
+    },
+
+    // replacement for $.extend
+    _extend: function(destination, source) {
+      var property;
+      for (property in source) {
+        if (source.hasOwnProperty(property)){
+          if(source[property] && source[property].constructor && source[property].constructor === Object) {
+            destination[property] = destination[property] || {};
+            this._extend(destination[property], source[property]);
+          }
+          else {
+            destination[property] = source[property];
+          }
+        }
+      }
+      return destination;
+    }
+
+  }
+
+  plugin._extend(this, plugin);
+  plugin._extend(this, properties);
+  this.init(TLEData);
+}
 
 function satelliteDatamap(target, settings){
   var properties = 
   {
     _map : [] ,
     _target : [],
+    _data : {
+      TLE : [],
+      satellite : []
+    }
   };
-
 
   /*************************************
    * Public plugin settings and methods
@@ -35,7 +156,12 @@ function satelliteDatamap(target, settings){
     // settings for the plugin
     settings: {
       TLEurl : "mirror/cubesat.txt",
-      satelliteName : "UKUBE-1                 "
+      satelliteName : "UKUBE-1                 ",
+      trajectory : {
+        past_mins: 360,
+        post_mins: 360,
+        steps: 720
+      }
     },
 
     // constructor function
@@ -124,7 +250,6 @@ function satelliteDatamap(target, settings){
           })
           .style('opacity', function(datum){
               var opacity = Math.pow(datum.index < (totalNodes/2) ? (2*datum.index)/totalNodes : 2 - ((2*datum.index)/totalNodes), 4);
-              console.log(Number(opacity).noExponents());
               return Number(opacity).noExponents();
           });
     },
@@ -159,8 +284,91 @@ function satelliteDatamap(target, settings){
       TLEData[1] = TLEDataFull[index+1];
       TLEData[2] = TLEDataFull[index+2];
 
-      // Take TLE data and turn into trajectories.
+      this._data.TLE = TLEData;
+      this._buildSatellite();
+      this._drawTrajectory();
+      this._drawSatellite();
+      this._startSatelliteTimer();
     },
+                     
+    _startSatelliteTimer : function(){
+      if(typeof(this._timer)!=="undefined" && this._timer!==0)
+        return;
+
+      var that = this;
+      this._timer = 
+        setInterval(function(){
+          that._drawSatellite();
+        }, 5000);
+    },
+
+
+    _buildSatellite: function(){
+      this._data.satellite = new satelliteModel(this._data.TLE);
+    },
+
+    _drawSatellite: function(){
+      var latlng = this._data.satellite.getLatLng();
+
+      this._satelliteMarker =
+        this._map.bubbles([
+          {
+            radius: 10,
+            fillKey: 'UKUBE',
+            date: '1954-03-01',
+            popupOnHover: false,
+            latitude: latlng.latitude,
+            longitude: latlng.longitude
+          }], 
+          {
+            popupTemplate: function(geo, data) {
+              return '';//  '<div class="hoverinfo">Info about UKUBE</div>';
+            }
+          }
+        );
+    },
+
+    _drawTrajectory: function(){
+      var dt_list = [];
+      var dt_step_mins = (this.settings.trajectory.post_mins + this.settings.trajectory.past_mins) / this.settings.trajectory.steps;
+      var dt_val;
+      var dt_from = new Date();
+      var dt_to = new Date();
+      var latlng, next_latlng;
+      var trajectories = []
+
+      dt_from.subTime(0, this.settings.trajectory.past_mins);
+      dt_to.addTime(0, this.settings.trajectory.post_mins);
+
+      dt_val = dt_from;
+      while(dt_val < dt_to){
+        dt_list.push(new Date(dt_val));
+        dt_val.addTime(0, dt_step_mins);
+      }
+
+      latlng = this._data.satellite.getLatLng(dt_list[0]);
+      for (var i = 1; i<dt_list.length; i++){
+        next_latlng = this._data.satellite.getLatLng(dt_list[i]);
+
+        if (next_latlng.longitude < latlng.longitude){
+          trajectories.push({
+            "origin":  latlng,
+            "destination": next_latlng
+          }); 
+        }
+
+        latlng = next_latlng;
+      }
+
+      this._map.sat_trajectory(
+        trajectories,  
+        {
+          strokeWidth: 1, 
+          strokeColor: '#DD1C77', 
+          animationSpeed: 1000
+        });
+    },
+
 
     /*************************************
      * jquery replacement methods
