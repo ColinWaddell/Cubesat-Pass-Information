@@ -1,3 +1,0 @@
-[submodule "js/satellite-js"]
-	path = libs/satellite-js
-	url = git@github.com:shashwatak/satellite-js.git
