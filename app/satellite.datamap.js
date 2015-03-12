@@ -155,7 +155,7 @@ function satelliteDatamap(target, settings){
 
     // settings for the plugin
     settings: {
-      TLEurl : "mirror/cubesat.txt",
+      TLEurl : "mirror/mirror.php?url=http://www.celestrak.com/NORAD/elements/cubesat.txt",
       satelliteName : "UKUBE-1                 ",
       trajectory : {
         past_mins: 360,

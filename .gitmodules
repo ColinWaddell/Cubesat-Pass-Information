@@ -1,6 +1,3 @@
-[submodule "python/cubesat-passtimes"]
-	path = python/cubesat-passtimes
-	url = git@github.com:ColinWaddell/cubesat-passtimes.git
 [submodule "js/satellite-js"]
-	path = js/satellite-js
+	path = libs/satellite-js
 	url = git@github.com:shashwatak/satellite-js.git

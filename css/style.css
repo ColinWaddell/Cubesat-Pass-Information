@@ -1,3 +1,17 @@
+.datamaps-bubble {
+	-webkit-animation-name: 'pulse_animation';
+	-webkit-animation-duration: 2000ms;
+	-webkit-transform-origin:70% 70%;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-timing-function: linear;
+}
+
+@-webkit-keyframes pulse_animation {
+	0% { -webkit-transform: scale(0.9); }
+	50% { -webkit-transform: scale(1.1); }
+	100% { -webkit-transform: scale(0.9); }
+}
+
 .spinner {
   width: 15px;
   height: 15px;
