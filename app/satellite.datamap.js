@@ -29,7 +29,6 @@ Date.prototype.addTime= function(h,m){
   return this;
 }
 
-
 function satelliteModel(TLEData){
   var properties = 
   {
@@ -152,7 +151,6 @@ function satelliteDatamap(target, settings){
    ************************************/
 
   var plugin = {
-
     // settings for the plugin
     settings: {
       TLEurl : "mirror/mirror.php?url=http://www.celestrak.com/NORAD/elements/cubesat.txt",
@@ -173,15 +171,12 @@ function satelliteDatamap(target, settings){
       this._pullTLEData();
     },
 
-
-
     /*************************************
      * Private methods for Datamaps
      ************************************/
-
+     
     // take repo activity data and format for d3
     _buildDatamap: function(){
-
 
       this._map = new Datamap({
         element: this._target,
@@ -197,7 +192,6 @@ function satelliteDatamap(target, settings){
           UKUBE: '#444444'
         }
       });
-
 
       this._map.addPlugin('sat_trajectory', this._handleSatTrajectory);
     },
@@ -369,7 +363,6 @@ function satelliteDatamap(target, settings){
         });
     },
 
-
     /*************************************
      * jquery replacement methods
      *************************************/
@@ -421,10 +414,3 @@ function satelliteDatamap(target, settings){
 }
 
 var mymap = new satelliteDatamap('container');
-
-
-/*
- *
- * TODO: handle TLE and turn it into trajectory
- *
- * */
