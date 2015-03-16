@@ -29,6 +29,66 @@ Date.prototype.addTime= function(h,m){
   return this;
 }
 
+function colourMap(){
+  var properties = 
+  {
+    _colours: [
+       {name : 'RED',code: '#FF0000'},
+       {name : 'GREEN',code: '#00FF00'},
+       {name : 'BLUE',code: '#0000FF'},
+       {name : 'defaultFill', code: 'rgb(57, 118, 171)'},
+       {name : 'UKUBE',code: '#444444'}
+    ],
+
+    _fills: {},
+    _index: 0
+  };
+
+  var plugin = {
+
+    next: function(){
+      if(this._index >= this._colours.length)
+        this._index = 0;
+
+      return this._colours[this._index++];
+    },
+    
+    init: function(){
+      this._colours.forEach(function(value){
+        var title = value.name;
+        this._fills[title] = value.code;
+      }.bind(this));
+    },
+
+    allFills: function(){
+      return this._fills;
+    },
+
+
+    // replacement for $.extend
+    _extend: function(destination, source) {
+      var property;
+      for (property in source) {
+        if (source.hasOwnProperty(property)){
+          if(source[property] && source[property].constructor && source[property].constructor === Object) {
+            destination[property] = destination[property] || {};
+            this._extend(destination[property], source[property]);
+          }
+          else {
+            destination[property] = source[property];
+          }
+        }
+      }
+      return destination;
+    }
+
+  }
+
+  plugin._extend(this, plugin);
+  plugin._extend(this, properties);
+  this.init();
+}
+
 function satelliteModel(TLEData){
   var properties = 
   {
@@ -62,7 +122,12 @@ function satelliteModel(TLEData){
       this.satellite = satellite.twoline2satrec (
                         this._data.TLE[1], 
                         this._data.TLE[2]);
-           
+    },
+
+    name: function(){
+      var name = this._data.TLE[0];
+      name = name.slice(0,name.search("  "));
+      return name;
     },
 
     getLatLng: function(datetime){
@@ -142,7 +207,8 @@ function satelliteDatamap(target, settings){
     _target : [],
     _data : {
       TLE : [],
-      satellite : []
+      satellite : [],
+      colours : new colourMap() 
     }
   };
 
@@ -154,7 +220,7 @@ function satelliteDatamap(target, settings){
     // settings for the plugin
     settings: {
       TLEurl : "mirror/mirror.php?url=http://www.celestrak.com/NORAD/elements/cubesat.txt",
-      satelliteName : "UKUBE-1                 ",
+      satelliteName : ["UKUBE-1", "WNISAT-1"],
       trajectory : {
         past_mins: 360,
         post_mins: 360,
@@ -164,17 +230,30 @@ function satelliteDatamap(target, settings){
 
     // constructor function
     init: function(){
-      this.settings.satelliteName += String.fromCharCode(13); 
       this._target.innerHTML = "";
       this._target.classList.add("satellite-datamap");
+      this._data.colourMap = new colourMap();
       this._buildDatamap();
       this._pullTLEData();
+      this._startSatelliteTimer();          
     },
 
     /*************************************
      * Private methods for Datamaps
      ************************************/
      
+    // Take a satellite name and return it as a 
+    // correctly formatted TLE identifier
+    _nameToTLEString: function(satelliteName){
+      var blankName = "                        " + String.fromCharCode(13);
+      if (!satelliteName.length || satelliteName.length > blankName.length){
+        satelliteName = "UKUBE-1                 ";
+      }
+
+      return satelliteName + blankName.slice(satelliteName.length,blankName.length);    
+    },
+
+
     // take repo activity data and format for d3
     _buildDatamap: function(){
 
@@ -187,10 +266,7 @@ function satelliteDatamap(target, settings){
             popupOnHover: false, //disable the popup while hovering
             highlightOnHover: false
         },
-        fills: {
-          defaultFill: 'rgb(57, 118, 171)',
-          UKUBE: '#444444'
-        }
+        fills: this._data.colours.allFills()
       });
 
       this._map.addPlugin('sat_trajectory', this._handleSatTrajectory);
@@ -216,7 +292,6 @@ function satelliteDatamap(target, settings){
         });
 
       var totalNodes = data.length;
-
       arcs
         .enter()
           .append('svg:path')
@@ -226,7 +301,7 @@ function satelliteDatamap(target, settings){
             if ( datum.options && datum.options.strokeColor) {
               return datum.options.strokeColor;
             }
-            return  options.strokeColor
+            return  options.strokeColor;
           })
           .style('fill', 'none')
           .style('stroke-width', function(datum) {
@@ -269,60 +344,89 @@ function satelliteDatamap(target, settings){
       if(typeof(TLEDataFull)!=="object")
         return;
 
-      var index = TLEDataFull.indexOf(this.settings.satelliteName);
+      var satList = [];
+
+      if (typeof(this.settings.satelliteName)==="string"){
+        // Sat name needs to be in correct format to search TLE Data
+        satList[0] = this._nameToTLEString(this.settings.satelliteName);
+      }
+      else if (Array.isArray(this.settings.satelliteName)){
+        // Copy elements over and convert as we go
+        this.settings.satelliteName.forEach(function(satName){
+          satList.push(this._nameToTLEString(satName));
+        }.bind(this)); 
+      }
+      else{
+        console.log("error loading satellite names");
+        return;
+      }
+
+      satList.forEach(function(satName){
+        var satellite = this._buildSatelliteFromTLEName(satName, TLEDataFull);
+        this._data.satellite.push(satellite);
+        this._drawTrajectory(satellite);
+        this._drawSatellite(satellite);
+      }.bind(this));
+    },
+
+    _buildSatelliteFromTLEName: function(satName, TLEData){
+      var index = TLEData.indexOf(satName);
       if (index === -1)
         return;
       
-      var TLEData = [];
-      TLEData[0] = TLEDataFull[index];
-      TLEData[1] = TLEDataFull[index+1];
-      TLEData[2] = TLEDataFull[index+2];
+      var SatTLEData = [];
+      SatTLEData[0] = TLEData[index];
+      SatTLEData[1] = TLEData[index+1];
+      SatTLEData[2] = TLEData[index+2];
 
-      this._data.TLE = TLEData;
-      this._buildSatellite();
-      this._drawTrajectory();
-      this._drawSatellite();
-      this._startSatelliteTimer();
+      var satellite = new satelliteModel(SatTLEData);
+
+      return satellite;
     },
                      
-    _startSatelliteTimer : function(){
+    _startSatelliteTimer : function(satellite){
       if(typeof(this._timer)!=="undefined" && this._timer!==0)
         return;
 
       var that = this;
       this._timer = 
         setInterval(function(){
-          that._drawSatellite();
+          that._updateSatellites();
         }, 5000);
     },
 
+    _updateSatellites: function(){
+      this._data.satelliteMarkers = [];
 
-    _buildSatellite: function(){
-      this._data.satellite = new satelliteModel(this._data.TLE);
+      this._data.satellite.forEach(function(sat){
+        this._drawSatellite(sat);
+      }.bind(this));
     },
 
-    _drawSatellite: function(){
-      var latlng = this._data.satellite.getLatLng();
+    _drawSatellite: function(satellite){
+      var latlng = satellite.getLatLng();
 
-      this._satelliteMarker =
-        this._map.bubbles([
-          {
+      if (!Array.isArray(this._data.satelliteMarkers)){
+        this._data.satelliteMarkers = [];
+      }
+
+      this._data.satelliteMarkers.push({
             radius: 10,
-            fillKey: 'UKUBE',
             date: '1954-03-01',
             popupOnHover: false,
             latitude: latlng.latitude,
-            longitude: latlng.longitude
-          }], 
-          {
-            popupTemplate: function(geo, data) {
-              return '';//  '<div class="hoverinfo">Info about UKUBE</div>';
-            }
-          }
+            longitude: latlng.longitude,
+            fillKey: this._data.colours.next().name
+          } 
         );
+
+        this._map.bubbles(this._data.satelliteMarkers,{
+          popupTemplate: function(geo, data) {
+            return '';//  '<div class="hoverinfo">Info about UKUBE</div>';
+        }});
     },
 
-    _drawTrajectory: function(){
+    _drawTrajectory: function(satellite){
       var dt_list = [];
       var dt_step_mins = (this.settings.trajectory.post_mins + this.settings.trajectory.past_mins) / this.settings.trajectory.steps;
       var dt_val;
@@ -340,9 +444,9 @@ function satelliteDatamap(target, settings){
         dt_val.addTime(0, dt_step_mins);
       }
 
-      latlng = this._data.satellite.getLatLng(dt_list[0]);
+      latlng = satellite.getLatLng(dt_list[0]);
       for (var i = 1; i<dt_list.length; i++){
-        next_latlng = this._data.satellite.getLatLng(dt_list[i]);
+        next_latlng = satellite.getLatLng(dt_list[i]);
 
         if (next_latlng.longitude < latlng.longitude){
           trajectories.push({
@@ -358,7 +462,7 @@ function satelliteDatamap(target, settings){
         trajectories,  
         {
           strokeWidth: 1, 
-          strokeColor: '#DD1C77', 
+          strokeColor: this._data.colours.next().code, 
           animationSpeed: 1000
         });
     },
