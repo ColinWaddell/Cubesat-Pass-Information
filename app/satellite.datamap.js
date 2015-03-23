@@ -270,7 +270,151 @@ function satelliteDatamap(target, settings){
       });
 
       this._map.addPlugin('sat_trajectory', this._handleSatTrajectory);
+      this._map.addPlugin('sat_marker', this._handleSatMarker);
+      this._map.addPlugin('move_marker', this._moveSatMarker);
     },
+
+
+    _moveSatMarker: function(later, data, options){
+      var self = this;
+
+      function datumHasCoords (datum) {
+        return typeof datum !== 'undefined' && typeof datum.latitude !== 'undefined' && typeof datum.longitude !== 'undefined';
+      }
+
+      d3.select('#'+data.name)
+        .attr('cx', function ( datum ) {
+          var latLng;
+          if ( datumHasCoords(datum) ) {
+            latLng = self.latLngToXY(datum.latitude, datum.longitude);
+          }
+          else if ( datum.centered ) {
+            latLng = self.path.centroid(svg.select('path.' + datum.centered).data()[0]);
+          }
+          if ( latLng ) return latLng[0];
+        })
+        .attr('cy', function ( datum ) {
+          var latLng;
+          if ( datumHasCoords(datum) ) {
+            latLng = self.latLngToXY(datum.latitude, datum.longitude);
+          }
+          else if ( datum.centered ) {
+            latLng = self.path.centroid(svg.select('path.' + datum.centered).data()[0]);
+          }
+          if ( latLng ) return latLng[1];;
+        });
+    },
+
+    _handleSatMarker: function (layer, data, options ) {
+
+      function datumHasCoords (datum) {
+        return typeof datum !== 'undefined' && typeof datum.latitude !== 'undefined' && typeof datum.longitude !== 'undefined';
+      }
+
+      var self = this,
+          fillData = this.options.fills,
+          svg = this.svg;
+
+      if ( !data || (data && !data.slice) ) {
+        throw "Datamaps Error - bubbles must be an array";
+      }
+
+      var bubbles = layer.selectAll('circle.datamaps-satmarker').data( data, JSON.stringify );
+
+      bubbles
+        .enter()
+          .append('svg:circle')
+          .attr('class', 'datamaps-satmarker')
+          .attr('id', function (datum){
+            return typeof datum.name !== 'undefined' ? datum.name : '';
+          })
+          .attr('cx', function ( datum ) {
+            var latLng;
+            if ( datumHasCoords(datum) ) {
+              latLng = self.latLngToXY(datum.latitude, datum.longitude);
+            }
+            else if ( datum.centered ) {
+              latLng = self.path.centroid(svg.select('path.' + datum.centered).data()[0]);
+            }
+            if ( latLng ) return latLng[0];
+          })
+          .attr('cy', function ( datum ) {
+            var latLng;
+            if ( datumHasCoords(datum) ) {
+              latLng = self.latLngToXY(datum.latitude, datum.longitude);
+            }
+            else if ( datum.centered ) {
+              latLng = self.path.centroid(svg.select('path.' + datum.centered).data()[0]);
+            }
+            if ( latLng ) return latLng[1];;
+          })
+          .attr('r', 0) //for animation purposes
+          .attr('data-info', function(d) {
+            return JSON.stringify(d);
+          })
+          .style('stroke', function ( datum ) {
+            return typeof datum.borderColor !== 'undefined' ? datum.borderColor : options.borderColor;
+          })
+          .style('stroke-width', function ( datum ) {
+            return typeof datum.borderWidth !== 'undefined' ? datum.borderWidth : options.borderWidth;
+          })
+          .style('fill-opacity', function ( datum ) {
+            return typeof datum.fillOpacity !== 'undefined' ? datum.fillOpacity : options.fillOpacity;
+          })
+          .style('fill', function ( datum ) {
+            var fillColor = fillData[ datum.fillKey ];
+            return fillColor || fillData.defaultFill;
+          })
+          .on('mouseover', function ( datum ) {
+            var $this = d3.select(this);
+
+            if (options.highlightOnHover) {
+              //save all previous attributes for mouseout
+              var previousAttributes = {
+                'fill':  $this.style('fill'),
+                'stroke': $this.style('stroke'),
+                'stroke-width': $this.style('stroke-width'),
+                'fill-opacity': $this.style('fill-opacity')
+              };
+
+              $this
+                .style('fill', options.highlightFillColor)
+                .style('stroke', options.highlightBorderColor)
+                .style('stroke-width', options.highlightBorderWidth)
+                .style('fill-opacity', options.highlightFillOpacity)
+                .attr('data-previousAttributes', JSON.stringify(previousAttributes));
+            }
+
+            if (options.popupOnHover) {
+              self.updatePopup($this, datum, options, svg);
+            }
+          })
+          .on('mouseout', function ( datum ) {
+            var $this = d3.select(this);
+
+            if (options.highlightOnHover) {
+              //reapply previous attributes
+              var previousAttributes = JSON.parse( $this.attr('data-previousAttributes') );
+              for ( var attr in previousAttributes ) {
+                $this.style(attr, previousAttributes[attr]);
+              }
+            }
+
+            d3.selectAll('.datamaps-hoverover').style('display', 'none');
+          })
+          .transition().duration(400)
+            .attr('r', function ( datum ) {
+              return datum.radius;
+            });
+
+      bubbles.exit()
+        .transition()
+          .delay(options.exitDelay)
+          .attr("r", 0)
+          .remove();
+
+    },
+
 
     _handleSatTrajectory: function (layer, data, options) {
       var self = this,
@@ -365,8 +509,8 @@ function satelliteDatamap(target, settings){
         var satellite = this._buildSatelliteFromTLEName(satName, TLEDataFull);
         this._data.satellite.push(satellite);
         this._drawTrajectory(satellite);
-        this._drawSatellite(satellite);
       }.bind(this));
+
     },
 
     _buildSatelliteFromTLEName: function(satName, TLEData){
@@ -392,38 +536,66 @@ function satelliteDatamap(target, settings){
       this._timer = 
         setInterval(function(){
           that._updateSatellites();
-        }, 5000);
+        }, 1000);
     },
 
     _updateSatellites: function(){
-      this._data.satelliteMarkers = [];
 
-      this._data.satellite.forEach(function(sat){
-        this._drawSatellite(sat);
-      }.bind(this));
+      if(typeof this._data.satellite == 'undefined')
+        return;
+
+      if(typeof this._data.satelliteMarkers !== 'undefined'){
+        this._data.satellite.forEach(function(sat){
+          sat.updateModel();
+
+          var latlng = sat.getLatLng();
+          var marker = {
+            latitude: latlng.latitude,
+            longitude: latlng.longitude,
+            name: sat.name()
+          };
+
+          this._map.move_marker(marker,{});  
+        }.bind(this));
+      }
+      else{
+        this._data.satelliteMarkers = [];
+
+        this._data.satellite.forEach(function(sat){
+          var marker = this._buildSatelliteMarker(sat);
+          this._data.satelliteMarkers.push(marker);
+          this._drawSatellite(marker);
+        }.bind(this));     
+
+      }
+
     },
 
-    _drawSatellite: function(satellite){
+    _buildSatelliteMarker: function(satellite){
       var latlng = satellite.getLatLng();
 
       if (!Array.isArray(this._data.satelliteMarkers)){
         this._data.satelliteMarkers = [];
       }
 
-      this._data.satelliteMarkers.push({
-            radius: 10,
-            date: '1954-03-01',
-            popupOnHover: false,
-            latitude: latlng.latitude,
-            longitude: latlng.longitude,
-            fillKey: this._data.colours.next().name
-          } 
-        );
+      satellite.marker = {
+        radius: 10,
+        date: '1954-03-01',
+        popupOnHover: false,
+        latitude: latlng.latitude,
+        longitude: latlng.longitude,
+        fillKey: this._data.colours.next().name,
+        name: satellite.name()
+      };
 
-        this._map.bubbles(this._data.satelliteMarkers,{
-          popupTemplate: function(geo, data) {
-            return '';//  '<div class="hoverinfo">Info about UKUBE</div>';
-        }});
+      return satellite.marker;
+    },
+
+    _drawSatellite: function(marker){
+      this._map.sat_marker([marker],{
+        popupTemplate: function(geo, data) {
+          return '';//  '<div class="hoverinfo">Info about UKUBE</div>';
+      }});
     },
 
     _drawTrajectory: function(satellite){
