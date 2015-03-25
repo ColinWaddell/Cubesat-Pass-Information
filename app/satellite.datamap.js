@@ -38,14 +38,14 @@ function colourMap(){
        {name : 'Dark Green',  code: '#1e7145'},
        {name : 'Dark Blue',   code: '#2b5797'},
        {name : 'Light Purple',code: '#9f00a7'},
-       {name : 'Yellow',      code: '#ffc40d'},
+       {name : 'Dark Orange', code: '#da532c'},
        {name : 'Dark Purple', code: '#603cba'},
        {name : 'Green',       code: '#00a300'},
-       {name : 'Dark Orange', code: '#da532c'},
+       {name : 'Teal',        code: '#28908E'},
        {name : 'Orange',      code: '#e3a21a'},
        {name : 'Purple',      code: '#7e3878'},
+       {name : 'Yellow',      code: '#ffc40d'},
        {name : 'Magenta',     code: '#E21B91'},
-       {name : 'Teal',        code: '#00aba9'},
        {name : 'Dark Red',    code: '#b91d47'},
        {name : 'Red',         code: '#ee1111'},
        {name : 'defaultFill', code: '#89BDEA'}
@@ -143,6 +143,12 @@ function satelliteModel(TLEData){
       return name;
     },
 
+    nameID: function(){
+      var valid_name = this.name();
+      valid_name = valid_name.replace(/\W/g,'_');
+      return valid_name;
+    },
+
     getLatLng: function(datetime){
 
       var now;
@@ -233,7 +239,7 @@ function satelliteDatamap(target, settings){
     // settings for the plugin
     settings: {
       TLEurl : "mirror/mirror.php?url=http://www.celestrak.com/NORAD/elements/cubesat.txt",
-      satelliteName : ["UKUBE-1", "WNISAT-1"],
+      satelliteName : [],
       trajectory : {
         past_mins: 360,
         post_mins: 360,
@@ -249,6 +255,7 @@ function satelliteDatamap(target, settings){
       this._buildDatamap();
       this._pullTLEData();
       this._startSatelliteTimer();          
+      this._startRedrawTimer();
     },
 
     /*************************************
@@ -295,7 +302,7 @@ function satelliteDatamap(target, settings){
         return typeof datum !== 'undefined' && typeof datum.latitude !== 'undefined' && typeof datum.longitude !== 'undefined';
       }
 
-      var marker = d3.selectAll('circle#'+data.name);
+      var marker = d3.selectAll('circle#'+data.id+'-bubble');
 
       marker
         .attr('cx', function ( datum ) {
@@ -306,30 +313,40 @@ function satelliteDatamap(target, settings){
           var latLng = self.latLngToXY(options.latitude, options.longitude);
           return latLng[1];
         });
+
+
+      var label = d3.selectAll('text#'+data.id+'-label');
+
+      label
+        .attr('x', function ( datum ) {
+          var latLng = self.latLngToXY(options.latitude, options.longitude);
+          return latLng[0] + 10;
+        })
+        .attr('y', function ( datum ) {
+          var latLng = self.latLngToXY(options.latitude, options.longitude);
+          return latLng[1] - 10;
+        });
+
     },
 
     _handleSatMarker: function (layer, data, options ) {
 
-      function datumHasCoords (datum) {
-        return typeof datum !== 'undefined' && typeof datum.latitude !== 'undefined' && typeof datum.longitude !== 'undefined';
-      }
-
       var self = this,
-          fillData = this.options.fills,
-          svg = this.svg;
+        fillData = this.options.fills,
+        svg = this.svg;
 
       if ( !data || (data && !data.slice) ) {
         throw "Datamaps Error - bubbles must be an array";
       }
 
-      var bubbles = layer.selectAll('circle.datamaps-satmarker').data( data, JSON.stringify );
+      var bubbles = layer.selectAll('circle.datamaps-bubble').data( data, JSON.stringify );
 
       bubbles
         .enter()
           .append('svg:circle')
-          .attr('class', 'datamaps-satmarker')
+          .attr('class', 'datamaps-bubble')
           .attr('id', function (datum){
-            return typeof datum.name !== 'undefined' ? datum.name : '';
+            return typeof datum.id !== 'undefined' ? datum.id+"-bubble" : '';
           })
           .attr('cx', function ( datum ) {
             var latLng;
@@ -410,12 +427,52 @@ function satelliteDatamap(target, settings){
               return datum.radius;
             });
 
+        bubbles
+          .enter()
+          .append("text")
+          .attr('id', function (datum){
+            return typeof datum.id !== 'undefined' ? datum.id+"-label" : '';
+          })
+          .attr('x', function ( datum ) {
+            var latLng;
+            if ( datumHasCoords(datum) ) {
+              latLng = self.latLngToXY(datum.latitude, datum.longitude);
+            }
+            else if ( datum.centered ) {
+              latLng = self.path.centroid(svg.select('path.' + datum.centered).data()[0]);
+            }
+            if ( latLng ) return latLng[0] + 10;
+          })
+          .attr('y', function ( datum ) {
+            var latLng;
+            if ( datumHasCoords(datum) ) {
+              latLng = self.latLngToXY(datum.latitude, datum.longitude);
+            }
+            else if ( datum.centered ) {
+              latLng = self.path.centroid(svg.select('path.' + datum.centered).data()[0]);
+            }
+            if ( latLng ) return latLng[1] - 10;
+          })
+          .text( function (d) { 
+              return d.name; 
+          })
+          .attr("font-family", "sans-serif")
+          .attr("font-size", "18px")
+          .style('fill', function ( datum ) {
+            var fillColor = fillData[ datum.fillKey ];
+            return fillColor || fillData.defaultFill;
+          });
+                
+
       bubbles.exit()
         .transition()
           .delay(options.exitDelay)
           .attr("r", 0)
           .remove();
 
+      function datumHasCoords (datum) {
+        return typeof datum !== 'undefined' && typeof datum.latitude !== 'undefined' && typeof datum.longitude !== 'undefined';
+      }
     },
 
 
@@ -535,11 +592,24 @@ function satelliteDatamap(target, settings){
       if(typeof(this._timer)!=="undefined" && this._timer!==0)
         return;
 
-      var that = this;
-      this._timer = 
-        setInterval(function(){
-          that._updateSatellites();
-        }, 1000);
+      this._timer = setTimeout(this._satelliteTimerThread.bind(this), 5000);
+    },
+
+    _satelliteTimerThread: function(){
+      this._updateSatellites();
+      this._timer = setTimeout(this._satelliteTimerThread.bind(this), 5000);
+    },
+                           
+    _startRedrawTimer : function(){
+      if(typeof(this._redrawTimer )!=="undefined" && this._redrawTimer !==0)
+        return;
+
+      this._redrawTimer = setTimeout(this._redrawTimerThread.bind(this), 1000);
+    },
+
+    _redrawTimerThread: function(){
+      this._redraw();
+      this._redrawTimer = setTimeout(this._redrawTimerThread.bind(this), 50000);
     },
 
     _updateSatellites: function(){
@@ -553,6 +623,7 @@ function satelliteDatamap(target, settings){
           var marker = {
             latitude: latlng.latitude,
             longitude: latlng.longitude,
+            id: sat.nameID(),
             name: sat.name()
           };
 
@@ -572,6 +643,20 @@ function satelliteDatamap(target, settings){
 
     },
 
+    _redraw: function(){
+
+      if(typeof this._data.satellite === 'undefined' || !this._data.satellite.length)
+        return;
+
+      d3.selectAll('path.datamaps-arc').remove();
+      d3.selectAll('datamaps-bubble').remove();
+
+      this._data.satellite = [];
+      this._data.satelliteMarkers = [];
+
+      this._pullTLEData();
+    },
+
     _buildSatelliteMarker: function(satellite){
       var latlng = satellite.getLatLng();
 
@@ -582,10 +667,11 @@ function satelliteDatamap(target, settings){
       satellite.marker = {
         radius: 10,
         date: '1954-03-01',
-        popupOnHover: false,
         latitude: latlng.latitude,
         longitude: latlng.longitude,
+        popupOnHover: true,
         fillKey: this._data.colours.next().name,
+        id: satellite.nameID(),
         name: satellite.name()
       };
 
@@ -595,7 +681,7 @@ function satelliteDatamap(target, settings){
     _drawSatellite: function(marker){
       this._map.sat_marker([marker],{
         popupTemplate: function(geo, data) {
-          return '';//  '<div class="hoverinfo">Info about UKUBE</div>';
+          return '<div class="hoverinfo">Info about UKUBE</div>';
       }});
     },
 
@@ -690,4 +776,12 @@ function satelliteDatamap(target, settings){
   this.init();
 }
 
-var mymap = new satelliteDatamap('container');
+var mymap = new satelliteDatamap(
+  'container', {
+    satelliteName: [
+    "UKUBE-1", 
+    "WNISAT-1", 
+    "SEEDS II (CO-66)",
+    "LEMUR-1", 
+    "ZACUBE-1 (TSHEPISOSAT) "
+  ]});
