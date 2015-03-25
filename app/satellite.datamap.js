@@ -33,11 +33,22 @@ function colourMap(){
   var properties = 
   {
     _colours: [
-       {name : 'RED',code: '#FF0000'},
-       {name : 'GREEN',code: '#00FF00'},
-       {name : 'BLUE',code: '#0000FF'},
-       {name : 'defaultFill', code: 'rgb(57, 118, 171)'},
-       {name : 'UKUBE',code: '#444444'}
+       {name : 'Light Green', code: '#99b433'},
+       {name : 'Blue',        code: '#2d89ef'},
+       {name : 'Dark Green',  code: '#1e7145'},
+       {name : 'Dark Blue',   code: '#2b5797'},
+       {name : 'Light Purple',code: '#9f00a7'},
+       {name : 'Yellow',      code: '#ffc40d'},
+       {name : 'Dark Purple', code: '#603cba'},
+       {name : 'Green',       code: '#00a300'},
+       {name : 'Dark Orange', code: '#da532c'},
+       {name : 'Orange',      code: '#e3a21a'},
+       {name : 'Purple',      code: '#7e3878'},
+       {name : 'Magenta',     code: '#E21B91'},
+       {name : 'Teal',        code: '#00aba9'},
+       {name : 'Dark Red',    code: '#b91d47'},
+       {name : 'Red',         code: '#ee1111'},
+       {name : 'defaultFill', code: '#89BDEA'}
     ],
 
     _fills: {},
@@ -47,10 +58,12 @@ function colourMap(){
   var plugin = {
 
     next: function(){
-      if(this._index >= this._colours.length)
+      if(this._index >= this._colours.length-1)
         this._index = 0;
 
-      return this._colours[this._index++];
+      var colour = this._colours[this._index];
+      this._index++;
+      return colour;
     },
     
     init: function(){
@@ -275,33 +288,23 @@ function satelliteDatamap(target, settings){
     },
 
 
-    _moveSatMarker: function(later, data, options){
+    _moveSatMarker: function(layer, data, options){
       var self = this;
 
       function datumHasCoords (datum) {
         return typeof datum !== 'undefined' && typeof datum.latitude !== 'undefined' && typeof datum.longitude !== 'undefined';
       }
 
-      d3.select('#'+data.name)
+      var marker = d3.selectAll('circle#'+data.name);
+
+      marker
         .attr('cx', function ( datum ) {
-          var latLng;
-          if ( datumHasCoords(datum) ) {
-            latLng = self.latLngToXY(datum.latitude, datum.longitude);
-          }
-          else if ( datum.centered ) {
-            latLng = self.path.centroid(svg.select('path.' + datum.centered).data()[0]);
-          }
-          if ( latLng ) return latLng[0];
+          var latLng = self.latLngToXY(options.latitude, options.longitude);
+          return latLng[0];
         })
         .attr('cy', function ( datum ) {
-          var latLng;
-          if ( datumHasCoords(datum) ) {
-            latLng = self.latLngToXY(datum.latitude, datum.longitude);
-          }
-          else if ( datum.centered ) {
-            latLng = self.path.centroid(svg.select('path.' + datum.centered).data()[0]);
-          }
-          if ( latLng ) return latLng[1];;
+          var latLng = self.latLngToXY(options.latitude, options.longitude);
+          return latLng[1];
         });
     },
 
@@ -541,13 +544,11 @@ function satelliteDatamap(target, settings){
 
     _updateSatellites: function(){
 
-      if(typeof this._data.satellite == 'undefined')
+      if(typeof this._data.satellite === 'undefined' || !this._data.satellite.length)
         return;
 
       if(typeof this._data.satelliteMarkers !== 'undefined'){
         this._data.satellite.forEach(function(sat){
-          sat.updateModel();
-
           var latlng = sat.getLatLng();
           var marker = {
             latitude: latlng.latitude,
@@ -555,7 +556,7 @@ function satelliteDatamap(target, settings){
             name: sat.name()
           };
 
-          this._map.move_marker(marker,{});  
+          this._map.move_marker(marker,marker);  
         }.bind(this));
       }
       else{
