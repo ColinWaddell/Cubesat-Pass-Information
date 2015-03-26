@@ -604,12 +604,12 @@ function satelliteDatamap(target, settings){
       if(typeof(this._redrawTimer )!=="undefined" && this._redrawTimer !==0)
         return;
 
-      this._redrawTimer = setTimeout(this._redrawTimerThread.bind(this), 1000);
+      this._redrawTimer = setTimeout(this._redrawTimerThread.bind(this), 900000);
     },
 
     _redrawTimerThread: function(){
       this._redraw();
-      this._redrawTimer = setTimeout(this._redrawTimerThread.bind(this), 50000);
+      this._redrawTimer = setTimeout(this._redrawTimerThread.bind(this), 900000);
     },
 
     _updateSatellites: function(){
