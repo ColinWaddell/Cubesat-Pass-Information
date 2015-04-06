@@ -42,7 +42,7 @@ function moveSatMarker (layer, data, options){
     }
   })
   .attr('text-anchor', function ( datum ) {
-    if ( datumHasCoords(datum) &&  datum.longitude > 0 ){
+    if ( datumHasCoords(datum) &&  (datum.longitude > 0 ||  datum.longitude > 178 )){
       return "end";
     } 
     else{
