@@ -197,6 +197,18 @@
 			</div>
 		</div><!-- /container -->
 		<script src="app/satellite.datamap.js" type="text/javascript">
-</script><!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+                </script><!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+                <script>
+                var mymap = new satelliteDatamap(
+                  'container', {
+                    satelliteName: [
+                      "UKUBE-1", 
+                      "WNISAT-1", 
+                      "SEEDS II (CO-66)",
+                      "LEMUR-1", 
+                      "ZACUBE-1 (TSHEPISOSAT) ",
+                      "MICROMAS"
+                  ]});
+              </script><!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
 	</body>
 </html>
