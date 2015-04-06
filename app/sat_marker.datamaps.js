@@ -104,6 +104,8 @@ function handleSatMarker (layer, data, options ) {
         })
   .attr('x', function ( datum ) {
       var latLng;
+      var middlelatLng = self.latLngToXY(0, 0);
+
       if ( datumHasCoords(datum) ) {
       latLng = self.latLngToXY(datum.latitude, datum.longitude);
       }
@@ -111,12 +113,10 @@ function handleSatMarker (layer, data, options ) {
       latLng = self.path.centroid(svg.select('path.' + datum.centered).data()[0]);
       }
       if ( latLng ){
-        if ( datum.longitude > 0 ){
+        if (latLng[0] > middlelatLng[0])
           return latLng[0] - 10;
-        }
-        else{
+        else
           return latLng[0] + 10;
-        }
       }
       })
   .attr('y', function ( datum ) {
@@ -140,13 +140,17 @@ function handleSatMarker (layer, data, options ) {
       return d.name; 
       })
   .attr('text-anchor', function ( datum ) {
-        if ( datumHasCoords(datum) &&  datum.longitude> 0 ){
-          return "end";
-        } 
-        else{
-          return "start";
-        }
-      })
+      if ( !datumHasCoords(datum)) return "start"
+          
+      var latLng = self.latLngToXY(datum.latitude, datum.longitude);
+      var middlelatLng = self.latLngToXY(0, 0);
+
+      if (latLng[0] > middlelatLng[0])
+        return "end"
+      else
+        return "start"; 
+
+  })
   .attr("font-family", "sans-serif")
   .attr("font-size", "18px")
   .style('fill', function ( datum ) {

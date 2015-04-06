@@ -554,10 +554,10 @@ function satelliteDatamap(target, settings){
 var mymap = new satelliteDatamap(
   'container', {
     satelliteName: [
-      "UKUBE-1", 
-      "WNISAT-1", 
-      "SEEDS II (CO-66)",
-      "LEMUR-1", 
-      "ZACUBE-1 (TSHEPISOSAT) ",
+/*      "UKUBE-1", */
+      //"WNISAT-1", 
+      //"SEEDS II (CO-66)",
+      //"LEMUR-1", 
+      /*"ZACUBE-1 (TSHEPISOSAT) ",*/
       "MICROMAS"
   ]});

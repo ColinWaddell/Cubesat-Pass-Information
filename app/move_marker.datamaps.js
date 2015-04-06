@@ -23,13 +23,13 @@ function moveSatMarker (layer, data, options){
   label
   .attr('x', function ( datum ) {
     var latLng = self.latLngToXY(options.latitude, options.longitude);
+    var middlelatLng = self.latLngToXY(0, 0);
 
-    if ( datum.longitude > 0 ){
+    if (latLng[0] > middlelatLng[0])
       return latLng[0] - 10;
-    }
-    else{
+    else
       return latLng[0] + 10;
-    }
+
   })
   .attr('y', function ( datum ) {
     var latLng = self.latLngToXY(options.latitude, options.longitude);
@@ -42,12 +42,14 @@ function moveSatMarker (layer, data, options){
     }
   })
   .attr('text-anchor', function ( datum ) {
-    if ( datumHasCoords(datum) &&  (datum.longitude > 0 ||  datum.longitude > 178 )){
-      return "end";
-    } 
-    else{
+    var latLng = self.latLngToXY(options.latitude, options.longitude);
+    var middlelatLng = self.latLngToXY(0, 0);
+
+    if (latLng[0] > middlelatLng[0])
+      return "end"
+    else
       return "start";
-    }
+
   });
 
 }
