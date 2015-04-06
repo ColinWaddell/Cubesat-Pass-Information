@@ -19,13 +19,13 @@ Number.prototype.noExponents= function(){
 
 Date.prototype.subTime= function(h,m){
   this.setHours(this.getHours()-h);
-  this.setMinutes(this.getMinutes()-m);
+  this.setMilliseconds(this.getMilliseconds()-(m*60000));
   return this;
 }
 
 Date.prototype.addTime= function(h,m){
   this.setHours(this.getHours()+h);
-  this.setMinutes(this.getMinutes()+m);
+  this.setMilliseconds(this.getMilliseconds()+(m*60000));
   return this;
 }
 
@@ -241,8 +241,8 @@ function satelliteDatamap(target, settings){
       TLEurl : "mirror/mirror.php?url=http://www.celestrak.com/NORAD/elements/cubesat.txt",
       satelliteName : [],
       trajectory : {
-        past_mins: 360,
-        post_mins: 360,
+        past_mins: 180,
+        post_mins: 180,
         steps: 720
       }
     },
@@ -482,7 +482,7 @@ function satelliteDatamap(target, settings){
       for (var i = 1; i<dt_list.length; i++){
         next_latlng = satellite.getLatLng(dt_list[i]);
 
-        if (next_latlng.longitude < latlng.longitude){
+        if (Math.abs(next_latlng.longitude - latlng.longitude) < 170){
           trajectories.push({
             "origin":  latlng,
             "destination": next_latlng
@@ -554,5 +554,10 @@ function satelliteDatamap(target, settings){
 var mymap = new satelliteDatamap(
   'container', {
     satelliteName: [
+      "UKUBE-1", 
+      "WNISAT-1", 
+      "SEEDS II (CO-66)",
+      "LEMUR-1", 
+      "ZACUBE-1 (TSHEPISOSAT) ",
       "MICROMAS"
   ]});

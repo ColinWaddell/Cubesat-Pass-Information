@@ -110,7 +110,14 @@ function handleSatMarker (layer, data, options ) {
       else if ( datum.centered ) {
       latLng = self.path.centroid(svg.select('path.' + datum.centered).data()[0]);
       }
-      if ( latLng ) return latLng[0] + 10;
+      if ( latLng ){
+        if ( datum.longitude > 0 ){
+          return latLng[0] - 10;
+        }
+        else{
+          return latLng[0] + 10;
+        }
+      }
       })
   .attr('y', function ( datum ) {
       var latLng;
@@ -120,17 +127,33 @@ function handleSatMarker (layer, data, options ) {
       else if ( datum.centered ) {
       latLng = self.path.centroid(svg.select('path.' + datum.centered).data()[0]);
       }
-      if ( latLng ) return latLng[1] - 10;
+      if ( latLng ){
+        if ( datum.latitude > 0 ){
+          return latLng[1] + 20;
+        }
+        else{
+          return latLng[1] - 10;
+        }
+      } 
       })
   .text( function (d) { 
       return d.name; 
       })
+  .attr('text-anchor', function ( datum ) {
+        if ( datumHasCoords(datum) &&  datum.longitude> 0 ){
+          return "end";
+        } 
+        else{
+          return "start";
+        }
+      })
   .attr("font-family", "sans-serif")
-    .attr("font-size", "18px")
-    .style('fill', function ( datum ) {
-        var fillColor = fillData[ datum.fillKey ];
-        return fillColor || fillData.defaultFill;
-        });
+  .attr("font-size", "18px")
+  .style('fill', function ( datum ) {
+      var fillColor = fillData[ datum.fillKey ];
+      return fillColor || fillData.defaultFill;
+      })
+  .style('margin', "0 10px");
 
 
   bubbles.exit()
