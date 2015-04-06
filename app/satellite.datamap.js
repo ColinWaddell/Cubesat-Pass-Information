@@ -289,242 +289,9 @@ function satelliteDatamap(target, settings){
         fills: this._data.colours.allFills()
       });
 
-      this._map.addPlugin('sat_trajectory', this._handleSatTrajectory);
-      this._map.addPlugin('sat_marker', this._handleSatMarker);
-      this._map.addPlugin('move_marker', this._moveSatMarker);
-    },
-
-
-    _moveSatMarker: function(layer, data, options){
-      var self = this;
-
-      function datumHasCoords (datum) {
-        return typeof datum !== 'undefined' && typeof datum.latitude !== 'undefined' && typeof datum.longitude !== 'undefined';
-      }
-
-      var marker = d3.selectAll('circle#'+data.id+'-bubble');
-
-      marker
-        .attr('cx', function ( datum ) {
-          var latLng = self.latLngToXY(options.latitude, options.longitude);
-          return latLng[0];
-        })
-        .attr('cy', function ( datum ) {
-          var latLng = self.latLngToXY(options.latitude, options.longitude);
-          return latLng[1];
-        });
-
-
-      var label = d3.selectAll('text#'+data.id+'-label');
-
-      label
-        .attr('x', function ( datum ) {
-          var latLng = self.latLngToXY(options.latitude, options.longitude);
-          return latLng[0] + 10;
-        })
-        .attr('y', function ( datum ) {
-          var latLng = self.latLngToXY(options.latitude, options.longitude);
-          return latLng[1] - 10;
-        });
-
-    },
-
-    _handleSatMarker: function (layer, data, options ) {
-
-      var self = this,
-        fillData = this.options.fills,
-        svg = this.svg;
-
-      if ( !data || (data && !data.slice) ) {
-        throw "Datamaps Error - bubbles must be an array";
-      }
-
-      var bubbles = layer.selectAll('circle.datamaps-bubble').data( data, JSON.stringify );
-
-      bubbles
-        .enter()
-          .append('svg:circle')
-          .attr('class', 'datamaps-bubble')
-          .attr('id', function (datum){
-            return typeof datum.id !== 'undefined' ? datum.id+"-bubble" : '';
-          })
-          .attr('cx', function ( datum ) {
-            var latLng;
-            if ( datumHasCoords(datum) ) {
-              latLng = self.latLngToXY(datum.latitude, datum.longitude);
-            }
-            else if ( datum.centered ) {
-              latLng = self.path.centroid(svg.select('path.' + datum.centered).data()[0]);
-            }
-            if ( latLng ) return latLng[0];
-          })
-          .attr('cy', function ( datum ) {
-            var latLng;
-            if ( datumHasCoords(datum) ) {
-              latLng = self.latLngToXY(datum.latitude, datum.longitude);
-            }
-            else if ( datum.centered ) {
-              latLng = self.path.centroid(svg.select('path.' + datum.centered).data()[0]);
-            }
-            if ( latLng ) return latLng[1];;
-          })
-          .attr('r', 0) //for animation purposes
-          .attr('data-info', function(d) {
-            return JSON.stringify(d);
-          })
-          .style('stroke', function ( datum ) {
-            return typeof datum.borderColor !== 'undefined' ? datum.borderColor : options.borderColor;
-          })
-          .style('stroke-width', function ( datum ) {
-            return typeof datum.borderWidth !== 'undefined' ? datum.borderWidth : options.borderWidth;
-          })
-          .style('fill-opacity', function ( datum ) {
-            return typeof datum.fillOpacity !== 'undefined' ? datum.fillOpacity : options.fillOpacity;
-          })
-          .style('fill', function ( datum ) {
-            var fillColor = fillData[ datum.fillKey ];
-            return fillColor || fillData.defaultFill;
-          })
-          .on('mouseover', function ( datum ) {
-            var $this = d3.select(this);
-
-            if (options.highlightOnHover) {
-              //save all previous attributes for mouseout
-              var previousAttributes = {
-                'fill':  $this.style('fill'),
-                'stroke': $this.style('stroke'),
-                'stroke-width': $this.style('stroke-width'),
-                'fill-opacity': $this.style('fill-opacity')
-              };
-
-              $this
-                .style('fill', options.highlightFillColor)
-                .style('stroke', options.highlightBorderColor)
-                .style('stroke-width', options.highlightBorderWidth)
-                .style('fill-opacity', options.highlightFillOpacity)
-                .attr('data-previousAttributes', JSON.stringify(previousAttributes));
-            }
-
-            if (options.popupOnHover) {
-              self.updatePopup($this, datum, options, svg);
-            }
-          })
-          .on('mouseout', function ( datum ) {
-            var $this = d3.select(this);
-
-            if (options.highlightOnHover) {
-              //reapply previous attributes
-              var previousAttributes = JSON.parse( $this.attr('data-previousAttributes') );
-              for ( var attr in previousAttributes ) {
-                $this.style(attr, previousAttributes[attr]);
-              }
-            }
-
-            d3.selectAll('.datamaps-hoverover').style('display', 'none');
-          })
-          .transition().duration(400)
-            .attr('r', function ( datum ) {
-              return datum.radius;
-            });
-
-        bubbles
-          .enter()
-          .append("text")
-          .attr('id', function (datum){
-            return typeof datum.id !== 'undefined' ? datum.id+"-label" : '';
-          })
-          .attr('x', function ( datum ) {
-            var latLng;
-            if ( datumHasCoords(datum) ) {
-              latLng = self.latLngToXY(datum.latitude, datum.longitude);
-            }
-            else if ( datum.centered ) {
-              latLng = self.path.centroid(svg.select('path.' + datum.centered).data()[0]);
-            }
-            if ( latLng ) return latLng[0] + 10;
-          })
-          .attr('y', function ( datum ) {
-            var latLng;
-            if ( datumHasCoords(datum) ) {
-              latLng = self.latLngToXY(datum.latitude, datum.longitude);
-            }
-            else if ( datum.centered ) {
-              latLng = self.path.centroid(svg.select('path.' + datum.centered).data()[0]);
-            }
-            if ( latLng ) return latLng[1] - 10;
-          })
-          .text( function (d) { 
-              return d.name; 
-          })
-          .attr("font-family", "sans-serif")
-          .attr("font-size", "18px")
-          .style('fill', function ( datum ) {
-            var fillColor = fillData[ datum.fillKey ];
-            return fillColor || fillData.defaultFill;
-          });
-                
-
-      bubbles.exit()
-        .transition()
-          .delay(options.exitDelay)
-          .attr("r", 0)
-          .remove();
-
-      function datumHasCoords (datum) {
-        return typeof datum !== 'undefined' && typeof datum.latitude !== 'undefined' && typeof datum.longitude !== 'undefined';
-      }
-    },
-
-
-    _handleSatTrajectory: function (layer, data, options) {
-      var self = this,
-          svg = this.svg;
-
-      if ( !data || (data && !data.slice) ) {
-        throw "Datamaps Error - arcs must be an array";
-      }
-
-      if ( typeof options === "undefined" ) {
-        options = defaultOptions.arcConfig;
-      }
-
-      var arcs = layer.selectAll('path.datamaps-arc').data( data, 
-        function(d,i){
-          d.index = i;
-          d = JSON.stringify(d); 
-         return d;
-        });
-
-      var totalNodes = data.length;
-      arcs
-        .enter()
-          .append('svg:path')
-          .attr('class', 'datamaps-arc')
-          .style('stroke-linecap', 'round')
-          .style('stroke', function(datum) {
-            if ( datum.options && datum.options.strokeColor) {
-              return datum.options.strokeColor;
-            }
-            return  options.strokeColor;
-          })
-          .style('fill', 'none')
-          .style('stroke-width', function(datum) {
-            if ( datum.options && datum.options.strokeWidth) {
-              return datum.options.strokeWidth;
-            }
-            return options.strokeWidth;
-          })
-          .attr('d', function(datum) {
-              var originXY = self.latLngToXY(datum.origin.latitude, datum.origin.longitude);
-              var destXY = self.latLngToXY(datum.destination.latitude, datum.destination.longitude);
-              var midXY = [ (originXY[0] + destXY[0]) / 2, (originXY[1] + destXY[1]) / 2];
-             
-              return "M" + originXY[0] + ',' + originXY[1] + "S" + midXY[0] +  "," + midXY[1] + "," + destXY[0] + "," + destXY[1]; 
-          })
-          .style('opacity', function(datum){
-              var opacity = Math.pow(datum.index < (totalNodes/2) ? (2*datum.index)/totalNodes : 2 - ((2*datum.index)/totalNodes), 4);
-              return Number(opacity).noExponents();
-          });
+      this._map.addPlugin('sat_trajectory', handleSatTrajectory);
+      this._map.addPlugin('sat_marker', handleSatMarker);
+      this._map.addPlugin('move_marker', moveSatMarker);
     },
 
     /*************************************
@@ -588,16 +355,20 @@ function satelliteDatamap(target, settings){
       return satellite;
     },
                      
+    /*************************************
+     * Timer code
+     *************************************/
+
     _startSatelliteTimer : function(satellite){
       if(typeof(this._timer)!=="undefined" && this._timer!==0)
         return;
 
-      this._timer = setTimeout(this._satelliteTimerThread.bind(this), 5000);
+      this._timer = setTimeout(this._satelliteTimerThread.bind(this), 1000);
     },
 
     _satelliteTimerThread: function(){
       this._updateSatellites();
-      this._timer = setTimeout(this._satelliteTimerThread.bind(this), 5000);
+      this._timer = setTimeout(this._satelliteTimerThread.bind(this), 1000);
     },
                            
     _startRedrawTimer : function(){
@@ -611,6 +382,10 @@ function satelliteDatamap(target, settings){
       this._redraw();
       this._redrawTimer = setTimeout(this._redrawTimerThread.bind(this), 900000);
     },
+
+    /*************************************
+     * Redraw Code
+     *************************************/
 
     _updateSatellites: function(){
 
@@ -779,9 +554,5 @@ function satelliteDatamap(target, settings){
 var mymap = new satelliteDatamap(
   'container', {
     satelliteName: [
-    "UKUBE-1", 
-    "WNISAT-1", 
-    "SEEDS II (CO-66)",
-    "LEMUR-1", 
-    "ZACUBE-1 (TSHEPISOSAT) "
+      "MICROMAS"
   ]});
