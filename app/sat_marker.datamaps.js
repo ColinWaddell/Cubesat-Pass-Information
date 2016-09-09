@@ -152,7 +152,8 @@ function handleSatMarker (layer, data, options ) {
 
   })
   .attr("font-family", "sans-serif")
-  .attr("font-size", "18px")
+  .attr("font-size", "14px")
+  .attr("font-weight", "bold")
   .style('fill', function ( datum ) {
       var fillColor = fillData[ datum.fillKey ];
       return fillColor || fillData.defaultFill;
