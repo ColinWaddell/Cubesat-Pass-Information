@@ -1,3 +1,19 @@
+body{
+	background: #222;
+}
+
+p{
+	color: #666;
+}
+
+a{
+	color: #999;
+}
+
+.datamaps-subunits path{
+	fill: #333 !important;
+}
+
 .datamaps-bubble {
 	-webkit-animation-name: 'pulse_animation';
 	-webkit-animation-duration: 2000ms;
@@ -29,13 +45,13 @@
 }
 
 @keyframes rotateplane {
-  0% { 
+  0% {
     transform: perspective(120px) rotateX(0deg) rotateY(0deg);
-    -webkit-transform: perspective(120px) rotateX(0deg) rotateY(0deg) 
-  } 50% { 
+    -webkit-transform: perspective(120px) rotateX(0deg) rotateY(0deg)
+  } 50% {
     transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
-    -webkit-transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg) 
-  } 100% { 
+    -webkit-transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg)
+  } 100% {
     transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
     -webkit-transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
   }

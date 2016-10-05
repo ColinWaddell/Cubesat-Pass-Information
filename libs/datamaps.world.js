@@ -3,7 +3,7 @@
 
   //save off default references
   var d3 = window.d3, topojson = window.topojson;
-  
+
   var defaultOptions = {
     scope: 'world',
     responsive: false,
@@ -18,7 +18,7 @@
         dataUrl: null,
         hideAntarctica: true,
         borderWidth: 1,
-        borderColor: '#FDFDFD',
+        borderColor: '#666',
         popupTemplate: function(geography, data) {
           return '<div class="hoverinfo"><strong>' + geography.properties.name + '</strong></div>';
         },
@@ -67,7 +67,7 @@
       d3.select(this.options.element).style({'position': 'relative', 'padding-bottom': '60%'});
       d3.select(this.options.element).select('svg').style({'position': 'absolute', 'width': '100%', 'height': '100%'});
       d3.select(this.options.element).select('svg').select('g').selectAll('path').style('vector-effect', 'non-scaling-stroke');
-    
+
     }
 
     return this.svg;
@@ -79,7 +79,7 @@
     var height = options.height || element.offsetHeight;
     var projection, path;
     var svg = this.svg;
-    
+
     if ( options && typeof options.scope === 'undefined') {
       options.scope = 'world';
     }
@@ -217,7 +217,7 @@
           d3.selectAll('.datamaps-hoverover').style('display', 'none');
         });
     }
-    
+
     function moveToFront() {
       this.parentNode.appendChild(this);
     }
@@ -264,7 +264,7 @@
       this.svg.insert("path", '.datamaps-subunits')
         .datum(graticule)
         .attr("class", "datamaps-graticule")
-        .attr("d", this.path); 
+        .attr("d", this.path);
   }
 
   function handleArcs (layer, data, options) {
@@ -587,7 +587,7 @@
               var tmpData = {};
               for(var i = 0; i < data.length; i++) {
                 tmpData[data[i].id] = data[i];
-              } 
+              }
               data = tmpData;
             }
             Datamaps.prototype.updateChoropleth.call(self, data);
