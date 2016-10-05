@@ -1,7 +1,7 @@
 
 Number.prototype.noExponents= function(){
     var data= String(this).split(/[eE]/);
-    if(data.length== 1) return data[0]; 
+    if(data.length== 1) return data[0];
 
     var  z= '', sign= this<0? '-':'',
     str= data[0].replace('.', ''),
@@ -12,7 +12,7 @@ Number.prototype.noExponents= function(){
         while(mag++) z += '0';
         return z + str.replace(/^\-/,'');
     }
-    mag -= str.length;  
+    mag -= str.length;
     while(mag--) z += '0';
     return str + z;
 }
@@ -31,7 +31,7 @@ Date.prototype.addTime= function(h,m){
 
 
 function satelliteModel(TLEData){
-  var properties = 
+  var properties =
   {
     _data:{
       TLE:[]
@@ -57,11 +57,11 @@ function satelliteModel(TLEData){
         return;
 
       // Update our TLE data
-      this._data.TLE = TLEData; 
+      this._data.TLE = TLEData;
 
       // Build our satellite
       this.satellite = satellite.twoline2satrec (
-                        this._data.TLE[1], 
+                        this._data.TLE[1],
                         this._data.TLE[2]);
     },
 
@@ -88,11 +88,11 @@ function satelliteModel(TLEData){
       // NOTE: while Javascript Date returns months in range 0-11, all satellite.js methods require months in range 1-12.
       var position_and_velocity = satellite.propagate (
                                     this.satellite,
-                                    now.getUTCFullYear(), 
-                                    now.getUTCMonth() + 1, // Note, this function requires months in range 1-12. 
+                                    now.getUTCFullYear(),
+                                    now.getUTCMonth() + 1, // Note, this function requires months in range 1-12.
                                     now.getUTCDate(),
-                                    now.getUTCHours(), 
-                                    now.getUTCMinutes(), 
+                                    now.getUTCHours(),
+                                    now.getUTCMinutes(),
                                     now.getUTCSeconds());
 
       // The position_velocity result is a key-value pair of ECI coordinates.
@@ -101,11 +101,11 @@ function satelliteModel(TLEData){
 
       // You will need GMST for some of the coordinate transforms
       // Also, be aware that the month range is 1-12, not 0-11.
-      var gmst = satellite.gstime_from_date (now.getUTCFullYear(), 
-                                             now.getUTCMonth() + 1, // Note, this function requires months in range 1-12. 
+      var gmst = satellite.gstime_from_date (now.getUTCFullYear(),
+                                             now.getUTCMonth() + 1, // Note, this function requires months in range 1-12.
                                              now.getUTCDate(),
-                                             now.getUTCHours(), 
-                                             now.getUTCMinutes(), 
+                                             now.getUTCHours(),
+                                             now.getUTCMinutes(),
                                              now.getUTCSeconds());
 
 
@@ -118,7 +118,7 @@ function satelliteModel(TLEData){
 
       //  Convert the RADIANS to DEGREES for pretty printing (appends "N", "S", "E", "W". etc).
       var longitude_str = satellite.degrees_long (longitude);
-      var latitude_str  = satellite.degrees_lat  (latitude);          
+      var latitude_str  = satellite.degrees_lat  (latitude);
 
       return { longitude: longitude_str, latitude: latitude_str };
     },
@@ -148,14 +148,14 @@ function satelliteModel(TLEData){
 }
 
 function satelliteDatamap(target, settings){
-  var properties = 
+  var properties =
   {
     _map : [] ,
     _target : [],
     _data : {
       TLE : [],
       satellite : [],
-      colours : new colourMap() 
+      colours : new colourMap()
     }
   };
 
@@ -166,7 +166,10 @@ function satelliteDatamap(target, settings){
   var plugin = {
     // settings for the plugin
     settings: {
-      TLEurl : "mirror/mirror.php?url=http://www.celestrak.com/NORAD/elements/cubesat.txt",
+      TLEurl : [
+        "mirror/mirror.php?url=http://www.celestrak.com/NORAD/elements/cubesat.txt",
+        "mirror/mirror.php?url=http://celestrak.com/NORAD/elements/engineering.txt"
+      ],
       satelliteName : [],
       trajectory : {
         past_mins: 180,
@@ -182,15 +185,15 @@ function satelliteDatamap(target, settings){
       this._data.colourMap = new colourMap();
       this._buildDatamap();
       this._pullTLEData();
-      this._startSatelliteTimer();          
+      this._startSatelliteTimer();
       this._startRedrawTimer();
     },
 
     /*************************************
      * Private methods for Datamaps
      ************************************/
-     
-    // Take a satellite name and return it as a 
+
+    // Take a satellite name and return it as a
     // correctly formatted TLE identifier
     _nameToTLEString: function(satelliteName){
       var blankName = "                        " + String.fromCharCode(13);
@@ -198,7 +201,7 @@ function satelliteDatamap(target, settings){
         satelliteName = "UKUBE-1                 ";
       }
 
-      return satelliteName + blankName.slice(satelliteName.length,blankName.length);    
+      return satelliteName + blankName.slice(satelliteName.length,blankName.length);
     },
 
 
@@ -228,11 +231,15 @@ function satelliteDatamap(target, settings){
 
     // grab json user data
     _pullTLEData: function(){
-      this._pullData(
-        this.settings.TLEurl, 
-        this._handleTLEData, 
-        "Error Loading User Data"
-      );
+      var that = this;
+      this.settings.TLEurl.forEach(
+        function(tleurl){
+          that._pullData(
+            tleurl,
+            that._handleTLEData,
+            "Error Loading User Data"
+          );
+        });
     },
 
     _handleTLEData : function (data){
@@ -253,7 +260,7 @@ function satelliteDatamap(target, settings){
         // Copy elements over and convert as we go
         this.settings.satelliteName.forEach(function(satName){
           satList.push(this._nameToTLEString(satName));
-        }.bind(this)); 
+        }.bind(this));
       }
       else{
         console.log("error loading satellite names");
@@ -272,7 +279,7 @@ function satelliteDatamap(target, settings){
       var index = TLEData.indexOf(satName);
       if (index === -1)
         return;
-      
+
       var SatTLEData = [];
       SatTLEData[0] = TLEData[index];
       SatTLEData[1] = TLEData[index+1];
@@ -282,7 +289,7 @@ function satelliteDatamap(target, settings){
 
       return satellite;
     },
-                     
+
     /*************************************
      * Timer code
      *************************************/
@@ -298,7 +305,7 @@ function satelliteDatamap(target, settings){
       this._updateSatellites();
       this._timer = setTimeout(this._satelliteTimerThread.bind(this), 1000);
     },
-                           
+
     _startRedrawTimer : function(){
       if(typeof(this._redrawTimer )!=="undefined" && this._redrawTimer !==0)
         return;
@@ -322,6 +329,8 @@ function satelliteDatamap(target, settings){
 
       if(typeof this._data.satelliteMarkers !== 'undefined'){
         this._data.satellite.forEach(function(sat){
+          if(!sat) return;
+
           var latlng = sat.getLatLng();
           var marker = {
             latitude: latlng.latitude,
@@ -330,7 +339,7 @@ function satelliteDatamap(target, settings){
             name: sat.name()
           };
 
-          this._map.move_marker(marker,marker);  
+          this._map.move_marker(marker,marker);
         }.bind(this));
       }
       else{
@@ -340,7 +349,7 @@ function satelliteDatamap(target, settings){
           var marker = this._buildSatelliteMarker(sat);
           this._data.satelliteMarkers.push(marker);
           this._drawSatellite(marker);
-        }.bind(this));     
+        }.bind(this));
 
       }
 
@@ -361,6 +370,8 @@ function satelliteDatamap(target, settings){
     },
 
     _buildSatelliteMarker: function(satellite){
+      if(!satellite) return;
+
       var latlng = satellite.getLatLng();
 
       if (!Array.isArray(this._data.satelliteMarkers)){
@@ -406,25 +417,27 @@ function satelliteDatamap(target, settings){
         dt_val.addTime(0, dt_step_mins);
       }
 
-      latlng = satellite.getLatLng(dt_list[0]);
-      for (var i = 1; i<dt_list.length; i++){
-        next_latlng = satellite.getLatLng(dt_list[i]);
+      if(satellite){
+        latlng = satellite.getLatLng(dt_list[0]);
+        for (var i = 1; i<dt_list.length; i++){
+          next_latlng = satellite.getLatLng(dt_list[i]);
 
-        if (Math.abs(next_latlng.longitude - latlng.longitude) < 170){
-          trajectories.push({
-            "origin":  latlng,
-            "destination": next_latlng
-          }); 
+          if (Math.abs(next_latlng.longitude - latlng.longitude) < 170){
+            trajectories.push({
+              "origin":  latlng,
+              "destination": next_latlng
+            });
+          }
+
+          latlng = next_latlng;
         }
-
-        latlng = next_latlng;
       }
 
       this._map.sat_trajectory(
-        trajectories,  
+        trajectories,
         {
-          strokeWidth: 1, 
-          strokeColor: this._data.colours.next().code, 
+          strokeWidth: 1,
+          strokeColor: this._data.colours.next().code,
           animationSpeed: 1000
         });
     },
@@ -467,7 +480,7 @@ function satelliteDatamap(target, settings){
         }
 
       };
-      xhr.send();         
+      xhr.send();
     }
 
   };
@@ -478,5 +491,3 @@ function satelliteDatamap(target, settings){
   this._target = document.getElementById(target);
   this.init();
 }
-
-
