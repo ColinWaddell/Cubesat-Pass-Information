@@ -189,6 +189,35 @@ function satelliteDatamap(target, settings){
       this._startRedrawTimer();
     },
 
+    totalSatellites: function(){
+      if (!this._data || !this._data.satellite) return 0;
+
+      var n = 0;
+      this._data.satellite.forEach(function(sat){
+        if (typeof(sat)!=="undefined") n++;
+      });
+
+      return n;
+    },
+
+    getSatelliteInfo: function(satIndex){
+
+      var n = 0;
+      var sat_n = null;
+
+      this._data.satellite.forEach(function(sat){
+        if (typeof(sat)!=="undefined") n++;
+        if(n==satIndex) sat_n = sat;
+      });
+
+      if (sat_n==null) return null;
+
+      var sat_info = {
+        'blah': 'blah'
+      }
+
+    },
+
     /*************************************
      * Private methods for Datamaps
      ************************************/
@@ -292,11 +321,8 @@ function satelliteDatamap(target, settings){
     _buildSatelliteFromTLEName: function(satName, TLEData){
       var index = TLEData.indexOf(satName);
       if (index === -1){
-        console.log(satName + " not found");
         return;
       }
-
-      console.log(satName + " found");
 
       var SatTLEData = [];
       SatTLEData[0] = TLEData[index];
