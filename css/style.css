@@ -48,8 +48,10 @@ span.sat_data.latlng{
 }
 
 #progress_bar{
-	width:250px;
-	height:10px;
+	width: 250px;
+	height: 1px;
+	background-color: #333;
+	margin: 2px 0;
 	display: block;
 }
 
