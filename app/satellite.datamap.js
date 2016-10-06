@@ -259,7 +259,8 @@ function satelliteDatamap(target, settings){
       else if (Array.isArray(this.settings.satelliteName)){
         // Copy elements over and convert as we go
         this.settings.satelliteName.forEach(function(satName){
-          satList.push(this._nameToTLEString(satName));
+          var name = this._nameToTLEString(satName)
+          satList.push(name);
         }.bind(this));
       }
       else{
@@ -328,7 +329,7 @@ function satelliteDatamap(target, settings){
       if(typeof(this._redrawTimer )!=="undefined" && this._redrawTimer !==0)
         return;
 
-      this._redrawTimer = setTimeout(this._redrawTimerThread.bind(this), 900000);
+      this._redrawTimer = setTimeout(this._redrawTimerThread.bind(this), 5000);
     },
 
     _redrawTimerThread: function(){
@@ -368,7 +369,8 @@ function satelliteDatamap(target, settings){
         return;
 
       d3.selectAll('path.datamaps-arc').remove();
-      d3.selectAll('datamaps-bubble').remove();
+      d3.selectAll('circle.datamaps-bubble').remove();
+      d3.selectAll('text.satellite-label').remove();
 
       this._data.satellite = [];
       this._data.satelliteMarkers = [];

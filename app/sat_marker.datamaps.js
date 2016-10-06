@@ -109,6 +109,7 @@ function handleSatMarker (layer, data, options ) {
   bubbles
     .enter()
     .append("text")
+    .attr('class', 'satellite-label')
     .attr('id', function (datum){
         if (!datum) return;
         return typeof datum.id !== 'undefined' ? datum.id+"-label" : '';
