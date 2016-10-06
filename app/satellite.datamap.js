@@ -86,7 +86,7 @@ function satelliteModel(TLEData){
       if(!this._data.attitude) this._data.attitude = {'time':0, 'backup': {}};
 
       var now;
-      if (typeof(datetime)==="undefined")
+      if (typeof(datetime)==="undefined" || datetime===null)
         now = new Date();
       else
         now = new Date(datetime);
@@ -427,7 +427,7 @@ function satelliteDatamap(target, settings){
     _buildSatelliteMarker: function(satellite){
       if(!satellite) return;
 
-      var latlng = satellite.getAttitude();
+      var latlng = satellite.getAttitude(null, true);
 
       if (!Array.isArray(this._data.satelliteMarkers)){
         this._data.satelliteMarkers = [];
