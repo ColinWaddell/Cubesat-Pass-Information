@@ -15,9 +15,12 @@ function handleSatMarker (layer, data, options ) {
     .append('svg:circle')
     .attr('class', 'datamaps-bubble')
     .attr('id', function (datum){
+        if(!datum) return;
         return typeof datum.id !== 'undefined' ? datum.id+"-bubble" : '';
         })
   .attr('cx', function ( datum ) {
+      if(!datum) return;
+
       var latLng;
       if ( datumHasCoords(datum) ) {
       latLng = self.latLngToXY(datum.latitude, datum.longitude);
@@ -28,6 +31,8 @@ function handleSatMarker (layer, data, options ) {
       if ( latLng ) return latLng[0];
       })
   .attr('cy', function ( datum ) {
+      if(!datum) return;
+
       var latLng;
       if ( datumHasCoords(datum) ) {
       latLng = self.latLngToXY(datum.latitude, datum.longitude);
@@ -42,15 +47,19 @@ function handleSatMarker (layer, data, options ) {
         return JSON.stringify(d);
         })
   .style('stroke', function ( datum ) {
+      if (!datum) return;
       return typeof datum.borderColor !== 'undefined' ? datum.borderColor : options.borderColor;
       })
   .style('stroke-width', function ( datum ) {
+      if (!datum) return;
       return typeof datum.borderWidth !== 'undefined' ? datum.borderWidth : options.borderWidth;
       })
   .style('fill-opacity', function ( datum ) {
+      if (!datum) return;
       return typeof datum.fillOpacity !== 'undefined' ? datum.fillOpacity : options.fillOpacity;
       })
   .style('fill', function ( datum ) {
+      if (!datum) return;
       var fillColor = fillData[ datum.fillKey ];
       return fillColor || fillData.defaultFill;
       })
@@ -93,6 +102,7 @@ function handleSatMarker (layer, data, options ) {
       })
   .transition().duration(400)
     .attr('r', function ( datum ) {
+        if (!datum) return;
         return datum.radius;
         });
 
@@ -100,9 +110,11 @@ function handleSatMarker (layer, data, options ) {
     .enter()
     .append("text")
     .attr('id', function (datum){
+        if (!datum) return;
         return typeof datum.id !== 'undefined' ? datum.id+"-label" : '';
         })
   .attr('x', function ( datum ) {
+      if (!datum) return;
       var latLng;
       var middlelatLng = self.latLngToXY(0, 0);
 
@@ -120,6 +132,7 @@ function handleSatMarker (layer, data, options ) {
       }
       })
   .attr('y', function ( datum ) {
+      if (!datum) return;
       var latLng;
       if ( datumHasCoords(datum) ) {
       latLng = self.latLngToXY(datum.latitude, datum.longitude);
@@ -134,27 +147,29 @@ function handleSatMarker (layer, data, options ) {
         else{
           return latLng[1] - 10;
         }
-      } 
+      }
       })
-  .text( function (d) { 
-      return d.name; 
+  .text( function (d) {
+      if (!d) return;
+      return d.name;
       })
   .attr('text-anchor', function ( datum ) {
       if ( !datumHasCoords(datum)) return "start"
-          
+
       var latLng = self.latLngToXY(datum.latitude, datum.longitude);
       var middlelatLng = self.latLngToXY(0, 0);
 
       if (latLng[0] > middlelatLng[0])
         return "end"
       else
-        return "start"; 
+        return "start";
 
   })
   .attr("font-family", "sans-serif")
   .attr("font-size", "14px")
   .attr("font-weight", "bold")
   .style('fill', function ( datum ) {
+      if (!datum) return;
       var fillColor = fillData[ datum.fillKey ];
       return fillColor || fillData.defaultFill;
       })
@@ -171,5 +186,3 @@ function handleSatMarker (layer, data, options ) {
     return typeof datum !== 'undefined' && typeof datum.latitude !== 'undefined' && typeof datum.longitude !== 'undefined';
   }
 }
-
-
