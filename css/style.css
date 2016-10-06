@@ -1,3 +1,4 @@
+/* PAGE STYLE */
 body{
 	background: #222;
 }
@@ -10,6 +11,12 @@ a{
 	color: #999;
 }
 
+.cslogo{
+	width: 100%;
+	margin-top: -20%;
+}
+
+/* DATA MAPS STYLE */
 .datamaps-subunits path{
 	fill: #2A2A2A !important;
 }
