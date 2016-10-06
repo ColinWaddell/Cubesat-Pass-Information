@@ -11,10 +11,10 @@ function handleSatTrajectory (layer, data, options) {
     options = defaultOptions.arcConfig;
   }
 
-  var arcs = layer.selectAll('path.datamaps-arc').data( data, 
+  var arcs = layer.selectAll('path.datamaps-arc').data( data,
       function(d,i){
       d.index = i;
-      d = JSON.stringify(d); 
+      d = JSON.stringify(d);
       return d;
       });
 
@@ -42,12 +42,10 @@ function handleSatTrajectory (layer, data, options) {
       var destXY = self.latLngToXY(datum.destination.latitude, datum.destination.longitude);
       var midXY = [ (originXY[0] + destXY[0]) / 2, (originXY[1] + destXY[1]) / 2];
 
-      return "M" + originXY[0] + ',' + originXY[1] + "S" + midXY[0] +  "," + midXY[1] + "," + destXY[0] + "," + destXY[1]; 
+      return "M" + originXY[0] + ',' + originXY[1] + "S" + midXY[0] +  "," + midXY[1] + "," + destXY[0] + "," + destXY[1];
       })
   .style('opacity', function(datum){
-      var opacity = Math.pow(datum.index < (totalNodes/2) ? (2*datum.index)/totalNodes : 2 - ((2*datum.index)/totalNodes), 4);
+      var opacity = Math.pow(datum.index < (totalNodes/2) ? (2*datum.index)/totalNodes : 2 - ((2*datum.index)/totalNodes), 10);
       return Number(opacity).noExponents();
       });
 }
-
-

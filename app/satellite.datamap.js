@@ -273,14 +273,16 @@ function satelliteDatamap(target, settings){
 
         if(!satellite) return;
 
+        var colour = this._data.colours.next();
+
         this._data.satellite.push(satellite);
-        this._drawTrajectory(satellite);
+        this._drawTrajectory(satellite, colour);
 
         if(typeof(this._data.satelliteMarkers)==="undefined")
           this._data.satelliteMarkers = [];
 
         // Draw Marker
-        var marker = this._buildSatelliteMarker(satellite);
+        var marker = this._buildSatelliteMarker(satellite, colour);
         this._data.satelliteMarkers.push(marker);
         this._drawSatellite(marker);
       }.bind(this));
@@ -329,7 +331,7 @@ function satelliteDatamap(target, settings){
       if(typeof(this._redrawTimer )!=="undefined" && this._redrawTimer !==0)
         return;
 
-      this._redrawTimer = setTimeout(this._redrawTimerThread.bind(this), 5000);
+      this._redrawTimer = setTimeout(this._redrawTimerThread.bind(this), 900000);
     },
 
     _redrawTimerThread: function(){
@@ -378,7 +380,7 @@ function satelliteDatamap(target, settings){
       this._pullTLEData();
     },
 
-    _buildSatelliteMarker: function(satellite){
+    _buildSatelliteMarker: function(satellite, colour){
       if(!satellite) return;
 
       var latlng = satellite.getLatLng();
@@ -388,12 +390,12 @@ function satelliteDatamap(target, settings){
       }
 
       satellite.marker = {
-        radius: 10,
+        radius: 8,
         date: '1954-03-01',
         latitude: latlng.latitude,
         longitude: latlng.longitude,
         popupOnHover: true,
-        fillKey: this._data.colours.next().name,
+        fillKey: colour.name,
         id: satellite.nameID(),
         name: satellite.name()
       };
@@ -408,7 +410,7 @@ function satelliteDatamap(target, settings){
       }});
     },
 
-    _drawTrajectory: function(satellite){
+    _drawTrajectory: function(satellite, colour){
       var dt_list = [];
       var dt_step_mins = (this.settings.trajectory.post_mins + this.settings.trajectory.past_mins) / this.settings.trajectory.steps;
       var dt_val;
@@ -446,7 +448,7 @@ function satelliteDatamap(target, settings){
         trajectories,
         {
           strokeWidth: 1,
-          strokeColor: this._data.colours.next().code,
+          strokeColor: colour.code,
           animationSpeed: 1000
         });
     },

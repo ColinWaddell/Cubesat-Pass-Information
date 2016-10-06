@@ -167,8 +167,8 @@ function handleSatMarker (layer, data, options ) {
 
   })
   .attr("font-family", "sans-serif")
-  .attr("font-size", "14px")
-  .attr("font-weight", "bold")
+  .attr("font-size", "12px")
+  .attr("font-weight", "light")
   .style('fill', function ( datum ) {
       if (!datum) return;
       var fillColor = fillData[ datum.fillKey ];
