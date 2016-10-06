@@ -51,7 +51,7 @@ span.sat_data.latlng{
 	width: 250px;
 	height: 1px;
 	background-color: #333;
-	margin: 2px 0;
+	margin: 2px 0 4px;
 	display: block;
 }
 
