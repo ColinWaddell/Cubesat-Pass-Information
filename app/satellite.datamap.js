@@ -81,13 +81,18 @@ function satelliteModel(TLEData){
       console.log(this);
     },
 
-    getAttitude: function(datetime){
+    getAttitude: function(datetime, forcenew){
+
+      if(!this._data.attitude) this._data.attitude = {'time':0, 'backup': {}};
 
       var now;
       if (typeof(datetime)==="undefined")
         now = new Date();
       else
         now = new Date(datetime);
+
+      if(!forcenew && this._data.attitude.time && (performance.now() - this._data.attitude.time) < 1000)
+        return this._data.attitude.backup;
 
       // NOTE: while Javascript Date returns months in range 0-11, all satellite.js methods require months in range 1-12.
       var position_and_velocity = satellite.propagate (
@@ -131,12 +136,16 @@ function satelliteModel(TLEData){
       var longitude_str = satellite.degrees_long (longitude);
       var latitude_str  = satellite.degrees_lat  (latitude);
 
-      return {
+      var attitude = {
         longitude: longitude_str,
         latitude: latitude_str,
         altitude: heightkm,
         velocity: velocity
       };
+
+      this._data.attitude.time = performance.now();
+      this._data.attitude.backup = attitude;
+      return attitude;
     },
 
     // replacement for $.extend
@@ -464,9 +473,9 @@ function satelliteDatamap(target, settings){
       }
 
       if(satellite){
-        latlng = satellite.getAttitude(dt_list[0]);
+        latlng = satellite.getAttitude(dt_list[0], true);
         for (var i = 1; i<dt_list.length; i++){
-          next_latlng = satellite.getAttitude(dt_list[i]);
+          next_latlng = satellite.getAttitude(dt_list[i], true);
 
           if (Math.abs(next_latlng.longitude - latlng.longitude) < 170){
             trajectories.push({
