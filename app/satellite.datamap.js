@@ -269,16 +269,31 @@ function satelliteDatamap(target, settings){
 
       satList.forEach(function(satName){
         var satellite = this._buildSatelliteFromTLEName(satName, TLEDataFull);
+
+        if(!satellite) return;
+
         this._data.satellite.push(satellite);
         this._drawTrajectory(satellite);
+
+        if(typeof(this._data.satelliteMarkers)==="undefined")
+          this._data.satelliteMarkers = [];
+
+        // Draw Marker
+        var marker = this._buildSatelliteMarker(satellite);
+        this._data.satelliteMarkers.push(marker);
+        this._drawSatellite(marker);
       }.bind(this));
 
     },
 
     _buildSatelliteFromTLEName: function(satName, TLEData){
       var index = TLEData.indexOf(satName);
-      if (index === -1)
+      if (index === -1){
+        console.log(satName + " not found");
         return;
+      }
+
+      console.log(satName + " found");
 
       var SatTLEData = [];
       SatTLEData[0] = TLEData[index];
@@ -296,7 +311,10 @@ function satelliteDatamap(target, settings){
 
     _startSatelliteTimer : function(satellite){
       if(typeof(this._timer)!=="undefined" && this._timer!==0)
-        return;
+        if(typeof(this._timer)==="number")
+          clearTimeout(this._timer);
+        else
+          return;
 
       this._timer = setTimeout(this._satelliteTimerThread.bind(this), 1000);
     },
@@ -342,17 +360,6 @@ function satelliteDatamap(target, settings){
           this._map.move_marker(marker,marker);
         }.bind(this));
       }
-      else{
-        this._data.satelliteMarkers = [];
-
-        this._data.satellite.forEach(function(sat){
-          var marker = this._buildSatelliteMarker(sat);
-          this._data.satelliteMarkers.push(marker);
-          this._drawSatellite(marker);
-        }.bind(this));
-
-      }
-
     },
 
     _redraw: function(){
