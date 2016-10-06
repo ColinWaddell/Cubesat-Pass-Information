@@ -1,6 +1,11 @@
 /* PAGE STYLE */
 body{
 	background: #222;
+	font-family: 'Roboto', sans-serif;
+}
+
+.container{
+	margin-top: -35px;
 }
 
 p{
@@ -9,6 +14,47 @@ p{
 
 a{
 	color: #999;
+}
+
+#sat_info{
+	color: #666;
+	display: none;
+	font-family: 'Roboto Mono', monospace;
+}
+
+#sat_info p{
+	padding-top: 2px;
+	font-family: 'Roboto', sans-serif;
+}
+
+span.sat_data{
+	color: #999;
+	padding-right: 10px;
+}
+
+span.sat_data.latlng{
+	width: 70px;
+	display: inline-block;
+}
+
+#progress_bar_area{
+	display: block;
+	width:100%;
+}
+
+#sat_name{
+	display: block;
+	width: 100%;
+}
+
+#progress_bar{
+	width:250px;
+	height:10px;
+	display: block;
+}
+
+#progress_bar_mark{
+	height: 1px;
 }
 
 .cslogo{

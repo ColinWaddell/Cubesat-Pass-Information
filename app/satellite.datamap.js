@@ -77,7 +77,11 @@ function satelliteModel(TLEData){
       return valid_name;
     },
 
-    getLatLng: function(datetime){
+    getColour: function(){
+      console.log(this);
+    },
+
+    getAttitude: function(datetime){
 
       var now;
       if (typeof(datetime)==="undefined")
@@ -98,6 +102,12 @@ function satelliteModel(TLEData){
       // The position_velocity result is a key-value pair of ECI coordinates.
       // These are the base results from which all other coordinates are derived.
       var position_eci = position_and_velocity["position"];
+      var velocity_eci = position_and_velocity["velocity"];
+      var velocity = Math.sqrt(
+                      Math.pow(velocity_eci.x, 2) +
+                      Math.pow(velocity_eci.y, 2) +
+                      Math.pow(velocity_eci.z, 2)
+                    ) * 3600;
 
       // You will need GMST for some of the coordinate transforms
       // Also, be aware that the month range is 1-12, not 0-11.
@@ -115,12 +125,18 @@ function satelliteModel(TLEData){
       // Geodetic coords are accessed via "longitude", "latitude", "height".
       var longitude = position_gd["longitude"];
       var latitude  = position_gd["latitude"];
+      var heightkm  = position_gd["height"];
 
       //  Convert the RADIANS to DEGREES for pretty printing (appends "N", "S", "E", "W". etc).
       var longitude_str = satellite.degrees_long (longitude);
       var latitude_str  = satellite.degrees_lat  (latitude);
 
-      return { longitude: longitude_str, latitude: latitude_str };
+      return {
+        longitude: longitude_str,
+        latitude: latitude_str,
+        altitude: heightkm,
+        velocity: velocity
+      };
     },
 
     // replacement for $.extend
@@ -167,8 +183,9 @@ function satelliteDatamap(target, settings){
     // settings for the plugin
     settings: {
       TLEurl : [
-        "mirror/mirror.php?url=http://www.celestrak.com/NORAD/elements/cubesat.txt",
-        "mirror/mirror.php?url=https://www.celestrak.com/NORAD/elements/resource.txt"
+        "mirror/mirror.php?url=https://www.celestrak.com/NORAD/elements/resource.txt",
+        "mirror/mirror.php?url=http://www.celestrak.com/NORAD/elements/cubesat.txt"
+
       ],
       satelliteName : [],
       trajectory : {
@@ -189,33 +206,25 @@ function satelliteDatamap(target, settings){
       this._startRedrawTimer();
     },
 
-    totalSatellites: function(){
-      if (!this._data || !this._data.satellite) return 0;
-
-      var n = 0;
-      this._data.satellite.forEach(function(sat){
-        if (typeof(sat)!=="undefined") n++;
-      });
-
-      return n;
-    },
-
-    getSatelliteInfo: function(satIndex){
+    getSatelliteInfo: function(name){
 
       var n = 0;
       var sat_n = null;
 
       this._data.satellite.forEach(function(sat){
-        if (typeof(sat)!=="undefined") n++;
-        if(n==satIndex) sat_n = sat;
+        if (typeof(sat)==="undefined") return;
+        if(sat.name()==name) sat_n = sat;
       });
 
       if (sat_n==null) return null;
 
       var sat_info = {
-        'blah': 'blah'
-      }
+        'name': sat_n.name(),
+        'colour': sat_n.colour.code,
+        'attitude': sat_n.getAttitude()
+      };
 
+      return sat_info;
     },
 
     /*************************************
@@ -246,7 +255,7 @@ function satelliteDatamap(target, settings){
             popupOnHover: false, //disable the popup while hovering
             highlightOnHover: false
         },
-        fills: this._data.colours.allFills()
+        fills: this._data.colours.all()
       });
 
       this._map.addPlugin('sat_trajectory', handleSatTrajectory);
@@ -303,15 +312,15 @@ function satelliteDatamap(target, settings){
         if(!satellite) return;
 
         var colour = this._data.colours.next();
-
+        satellite.colour = colour;
         this._data.satellite.push(satellite);
-        this._drawTrajectory(satellite, colour);
+        this._drawTrajectory(satellite);
 
         if(typeof(this._data.satelliteMarkers)==="undefined")
           this._data.satelliteMarkers = [];
 
         // Draw Marker
-        var marker = this._buildSatelliteMarker(satellite, colour);
+        var marker = this._buildSatelliteMarker(satellite);
         this._data.satelliteMarkers.push(marker);
         this._drawSatellite(marker);
       }.bind(this));
@@ -378,7 +387,7 @@ function satelliteDatamap(target, settings){
         this._data.satellite.forEach(function(sat){
           if(!sat) return;
 
-          var latlng = sat.getLatLng();
+          var latlng = sat.getAttitude();
           var marker = {
             latitude: latlng.latitude,
             longitude: latlng.longitude,
@@ -406,10 +415,10 @@ function satelliteDatamap(target, settings){
       this._pullTLEData();
     },
 
-    _buildSatelliteMarker: function(satellite, colour){
+    _buildSatelliteMarker: function(satellite){
       if(!satellite) return;
 
-      var latlng = satellite.getLatLng();
+      var latlng = satellite.getAttitude();
 
       if (!Array.isArray(this._data.satelliteMarkers)){
         this._data.satelliteMarkers = [];
@@ -421,7 +430,7 @@ function satelliteDatamap(target, settings){
         latitude: latlng.latitude,
         longitude: latlng.longitude,
         popupOnHover: true,
-        fillKey: colour.name,
+        fillKey: satellite.colour.name,
         id: satellite.nameID(),
         name: satellite.name()
       };
@@ -436,7 +445,7 @@ function satelliteDatamap(target, settings){
       }});
     },
 
-    _drawTrajectory: function(satellite, colour){
+    _drawTrajectory: function(satellite){
       var dt_list = [];
       var dt_step_mins = (this.settings.trajectory.post_mins + this.settings.trajectory.past_mins) / this.settings.trajectory.steps;
       var dt_val;
@@ -455,9 +464,9 @@ function satelliteDatamap(target, settings){
       }
 
       if(satellite){
-        latlng = satellite.getLatLng(dt_list[0]);
+        latlng = satellite.getAttitude(dt_list[0]);
         for (var i = 1; i<dt_list.length; i++){
-          next_latlng = satellite.getLatLng(dt_list[i]);
+          next_latlng = satellite.getAttitude(dt_list[i]);
 
           if (Math.abs(next_latlng.longitude - latlng.longitude) < 170){
             trajectories.push({
@@ -474,7 +483,7 @@ function satelliteDatamap(target, settings){
         trajectories,
         {
           strokeWidth: 1,
-          strokeColor: colour.code,
+          strokeColor: satellite.colour.code,
           animationSpeed: 1000
         });
     },
