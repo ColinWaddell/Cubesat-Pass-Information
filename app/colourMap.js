@@ -22,6 +22,7 @@ function colourMap(){
   var properties =
   {
     _colours: [
+       {name : 'White',         code: '#DDD'},
        {name : 'Light Green', code: '#99b433'},
        {name : 'Blue',        code: '#2d89ef'},
        {name : 'Dark Green',  code: '#1e7145'},
