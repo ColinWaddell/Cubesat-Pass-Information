@@ -70,7 +70,7 @@ Clyde Space Satellite Tracker
             </div>
           </div>
           <div class="col-xs-4">
-            <a href="http://clyde.space"><img src="img/CS-Logo.svg" class="cslogo" /></a>
+            <a href="http://clyde.space"><div id="cslogo" /></a>
           </div>
         </div>
       </div>
@@ -117,6 +117,7 @@ Clyde Space Satellite Tracker
       $('#sat_name').html(sat.name);
       $('#sat_name').css({'color': colorLuminance(sat.colour, 0.25)});
       $('#progress_bar_mark').css({'background-color': sat.colour});
+      $('#cslogo').css({'background-color': sat.colour});
       $('#progress_bar_mark').animate({'width': (250*((infoTime - index)/infoTime))}, 250);
       $('#sat_velocity').html(sat.attitude.velocity.toFixed(0) + ' km/h');
       $('#sat_height').html(sat.attitude.altitude.toFixed(2) + ' km');
