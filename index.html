@@ -72,7 +72,7 @@ Clyde Space Satellite Tracker
             </div>
           </div>
           <div class="col-xs-4">
-            <a href="http://clyde.space"><img src="img/CS-Logo.svg" class="cslogo" /></a>
+            <a href="http://clyde.space"><div id="cslogo" /></a>
           </div>
         </div>
       </div>
@@ -83,6 +83,7 @@ Clyde Space Satellite Tracker
 <script>
   var satList =
     [
+      "ISS (ZARYA)",
       "VELOX 2",
       "LEMUR-2-PETER",
       "DUCHIFAT-1",
@@ -120,6 +121,7 @@ Clyde Space Satellite Tracker
       $('#sat_name').css({'color': colorLuminance(sat.colour, 0.25)});
       $('#progress_bar_mark').css({'background-color': sat.colour});
       $('#progress_bar_mark').css({'width': (250*((infoTime - index)/infoTime))});
+      $('#cslogo').css({'background-color': sat.colour});
       $('#sat_velocity').html(sat.attitude.velocity.toFixed(0) + ' km/h');
       $('#sat_height').html(sat.attitude.altitude.toFixed(2) + ' km');
       $('#sat_latitude').html(lat + '&deg;');
@@ -135,7 +137,7 @@ Clyde Space Satellite Tracker
 </script>
 <style>
 body {
-   zoom: 1.25;
+   zoom: 1.3;
 }
 </style>
 </body>
