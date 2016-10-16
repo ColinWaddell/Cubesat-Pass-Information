@@ -419,6 +419,7 @@ function satelliteDatamap(target, settings){
       d3.selectAll('circle.datamaps-bubble').remove();
       d3.selectAll('text.satellite-label').remove();
 
+      this._data.colours.reset();
       this._data.satellite = [];
       this._data.satelliteMarkers = [];
 

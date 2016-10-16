@@ -71,6 +71,9 @@ function colourMap(){
       return this._fills;
     },
 
+		reset: function(){
+			this._index = 0;
+		},
 
     // replacement for $.extend
     _extend: function(destination, source) {
