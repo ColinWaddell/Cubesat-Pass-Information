@@ -192,10 +192,8 @@ function satelliteDatamap(target, settings){
     // settings for the plugin
     settings: {
       TLEurl : [
+        "mirror/mirror.php?url=http://www.celestrak.com/NORAD/elements/cubesat.txt",
         "mirror/mirror.php?url=http://www.celestrak.com/NORAD/elements/resource.txt",
-        "mirror/mirror.php?url=http://www.celestrak.com/NORAD/elements/stations.txt",
-        "mirror/mirror.php?url=http://www.celestrak.com/NORAD/elements/cubesat.txt"
-
       ],
       satelliteName : [],
       trajectory : {
@@ -419,6 +417,7 @@ function satelliteDatamap(target, settings){
       d3.selectAll('circle.datamaps-bubble').remove();
       d3.selectAll('text.satellite-label').remove();
 
+      this._data.colours.reset();
       this._data.satellite = [];
       this._data.satelliteMarkers = [];
 

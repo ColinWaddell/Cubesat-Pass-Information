@@ -22,7 +22,6 @@ function colourMap(){
   var properties =
   {
     _colours: [
-       {name : 'White',       code: '#DDD'},
        {name : 'Light Green', code: '#99b433'},
        {name : 'Blue',        code: '#2d89ef'},
        {name : 'Dark Green',  code: '#1e7145'},
@@ -32,6 +31,7 @@ function colourMap(){
        {name : 'Dark Purple', code: '#8274a7'},
        {name : 'Green',       code: '#00a300'},
        {name : 'Teal',        code: '#28908E'},
+       {name : 'White',       code: '#DDD'},
        {name : 'Purple',      code: '#930b87'},
        {name : 'Orange',      code: '#e3a21a'},
        {name : 'Yellow',      code: '#ffc40d'},
@@ -71,6 +71,9 @@ function colourMap(){
       return this._fills;
     },
 
+		reset: function(){
+			this._index = 0;
+		},
 
     // replacement for $.extend
     _extend: function(destination, source) {
