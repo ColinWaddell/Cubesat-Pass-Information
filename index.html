@@ -81,16 +81,15 @@ Clyde Space Satellite Tracker
 <script>
   var satList =
     [
-      "UKUBE-1",
+       "UKUBE-1",
       "VELOX 2",
-      "LEMUR-2-PETER",
+       "LEMUR-2-PETER",
       "DUCHIFAT-1",
       "ITUPSAT 1",
       "STRAND-1",
-      "FIREFLY",
+        "FIREFLY",
       "ZACUBE-1 (TSHEPISOSAT)",
       "E-ST@R-II",
-      "STMSAT-1",
       "NUSAT 1 (FRESCO)",
       "NUSAT 2 (BATATA)"
     ];
@@ -109,7 +108,7 @@ Clyde Space Satellite Tracker
     // Pull satellite info
     var sat = satmap.getSatelliteInfo(satList[satIndex]);
 
-    if(sat){
+    if(sat && sat.attitude){
       var lat = (sat.attitude.latitude < 0 ? '' : '&nbsp;') + sat.attitude.latitude.toFixed(2)
       var lng = (sat.attitude.longitude < 0 ? '' : '&nbsp;') + sat.attitude.longitude.toFixed(2)
 
