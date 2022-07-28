@@ -1,84 +1,84 @@
 /* PAGE STYLE */
-body{
-	background: #111;
-	font-family: 'Roboto', sans-serif;
+body {
+    background: #111;
+    font-family: 'Roboto', sans-serif;
 }
 
-.container{
-	margin-top: -35px;
+.container {
+    margin-top: -35px;
 }
 
-p{
-	color: #666;
+p {
+    color: #666;
 }
 
-a{
-	color: #999;
+a {
+    color: #999;
 }
 
-#sat_info{
-	color: #666;
-	display: none;
-	font-family: 'Roboto Mono', monospace;
+#sat_info {
+    color: #666;
+    display: none;
+    font-family: 'Roboto Mono', monospace;
 }
 
-#sat_info p{
-	padding-top: 3px;
-	font-family: 'Roboto', sans-serif;
+#sat_info p {
+    padding-top: 3px;
+    font-family: 'Roboto', sans-serif;
 }
 
-span.sat_data{
-	color: #999;
-	padding-right: 10px;
+span.sat_data {
+    color: #999;
+    padding-right: 10px;
 }
 
-span.sat_data.latlng{
-	width: 70px;
-	display: inline-block;
+span.sat_data.latlng {
+    width: 70px;
+    display: inline-block;
 }
 
-#progress_bar_area{
-	display: block;
-	width:100%;
+#progress_bar_area {
+    display: block;
+    width: 100%;
 }
 
-#sat_name{
-	display: block;
-	width: 100%;
+#sat_name {
+    display: block;
+    width: 100%;
 }
 
-#progress_bar{
-	width: 250px;
-	height: 1px;
-	background-color: #333;
-	margin: 2px 0 4px;
-	display: block;
+#progress_bar {
+    width: 250px;
+    height: 1px;
+    background-color: #333;
+    margin: 2px 0 4px;
+    display: block;
 }
 
-#progress_bar_mark{
-	height: 1px;
+#progress_bar_mark {
+    height: 1px;
 }
 
-#cslogo{
-	width: 350px;
-	height: 100px;
-	display: block;
-	background-image: url(../img/CS-Logo.svg);
-	margin-top: -25%;
-	border: 0;
-	margin: 0;
-	background-size: cover;
-	position: relative;
-	top: -25px;
+#cslogo {
+    width: 350px;
+    height: 100px;
+    display: block;
+    background-image: url(../img/Benchmark-Logo.svg);
+    margin-top: -25%;
+    border: 0;
+    margin: 0;
+    background-size: cover;
+    position: relative;
+    top: -25px;
 }
 
 /* DATA MAPS STYLE */
-.datamaps-subunits path{
-	fill: #2A2A2A !important;
+.datamaps-subunits path {
+    fill: #2A2A2A !important;
 }
 
 .datamaps-bubble {
-/*	animation-name: pulse_animation;
+    /*	animation-name: pulse_animation;
 	animation-duration: 1000ms;
 	transform-origin:70% 70%;
 	animation-iteration-count: infinite;
@@ -86,36 +86,56 @@ span.sat_data.latlng{
 }
 
 @keyframes pulse_animation {
-	0% { transform: scale(0.9); }
-	50% { transform: scale(1.1); }
-	100% { transform: scale(0.9); }
+    0% {
+        transform: scale(0.9);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(0.9);
+    }
 }
 
 .spinner {
-  width: 15px;
-  height: 15px;
-  background-color: #333;
-  display: inline-block;
-  margin: 2px auto;
-  animation: rotateplane 1.2s infinite ease-in-out;
-  animation: rotateplane 1.2s infinite ease-in-out;
+    width: 15px;
+    height: 15px;
+    background-color: #333;
+    display: inline-block;
+    margin: 2px auto;
+    animation: rotateplane 1.2s infinite ease-in-out;
+    animation: rotateplane 1.2s infinite ease-in-out;
 }
 
 @keyframes rotateplane {
-  0% { transform: perspective(120px) }
-  50% { transform: perspective(120px) rotateY(180deg) }
-  100% { transform: perspective(120px) rotateY(180deg)  rotateX(180deg) }
+    0% {
+        transform: perspective(120px)
+    }
+
+    50% {
+        transform: perspective(120px) rotateY(180deg)
+    }
+
+    100% {
+        transform: perspective(120px) rotateY(180deg) rotateX(180deg)
+    }
 }
 
 @keyframes rotateplane {
-  0% {
-    transform: perspective(120px) rotateX(0deg) rotateY(0deg);
-    transform: perspective(120px) rotateX(0deg) rotateY(0deg)
-  } 50% {
-    transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
-    transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg)
-  } 100% {
-    transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
-    transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
-  }
+    0% {
+        transform: perspective(120px) rotateX(0deg) rotateY(0deg);
+        transform: perspective(120px) rotateX(0deg) rotateY(0deg)
+    }
+
+    50% {
+        transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
+        transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg)
+    }
+
+    100% {
+        transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+        transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+    }
 }
