@@ -192,8 +192,7 @@ function satelliteDatamap(target, settings){
     // settings for the plugin
     settings: {
       TLEurl : [
-        "mirror/mirror.php?url=http://www.celestrak.com/NORAD/elements/cubesat.txt",
-        "mirror/mirror.php?url=http://www.celestrak.com/NORAD/elements/resource.txt",
+        "mirror/mirror.php?url=https://www.celestrak.com/NORAD/elements/active.txt",
       ],
       satelliteName : [],
       trajectory : {

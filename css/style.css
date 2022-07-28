@@ -78,11 +78,11 @@ span.sat_data.latlng{
 }
 
 .datamaps-bubble {
-	animation-name: pulse_animation;
+/*	animation-name: pulse_animation;
 	animation-duration: 1000ms;
 	transform-origin:70% 70%;
 	animation-iteration-count: infinite;
-	animation-timing-function: linear;
+	animation-timing-function: linear; */
 }
 
 @keyframes pulse_animation {
