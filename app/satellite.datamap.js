@@ -108,6 +108,10 @@ function satelliteModel(TLEData){
       // These are the base results from which all other coordinates are derived.
       var position_eci = position_and_velocity["position"];
       var velocity_eci = position_and_velocity["velocity"];
+
+      // we wont be able to go any further
+      if (typeof(velocity_eci)==="undefined") return;
+
       var velocity = Math.sqrt(
                       Math.pow(velocity_eci.x, 2) +
                       Math.pow(velocity_eci.y, 2) +
@@ -299,13 +303,12 @@ function satelliteDatamap(target, settings){
 
       if (typeof(this.settings.satelliteName)==="string"){
         // Sat name needs to be in correct format to search TLE Data
-        satList[0] = this._nameToTLEString(this.settings.satelliteName);
+        satList[0] = this.settings.satelliteName;
       }
       else if (Array.isArray(this.settings.satelliteName)){
         // Copy elements over and convert as we go
         this.settings.satelliteName.forEach(function(satName){
-          var name = this._nameToTLEString(satName)
-          satList.push(name);
+          satList.push(satName);
         }.bind(this));
       }
       else{
@@ -328,14 +331,32 @@ function satelliteDatamap(target, settings){
 
         // Draw Marker
         var marker = this._buildSatelliteMarker(satellite);
+
+        if (typeof(marker)==="undefined") return;
+        if (isNaN(marker.latitude) || isNaN(marker.longitude)) return;
+
         this._data.satelliteMarkers.push(marker);
         this._drawSatellite(marker);
       }.bind(this));
 
     },
 
+    _getSatelliteIndex: function(satName, TLEData){
+        var index = -1;
+        if (TLEData.length){
+            for(i=0; i<TLEData.length; i++){
+                if (TLEData[i].indexOf(satName) == 0){
+                    index = i;
+                    break;
+                }
+            }
+        }
+
+        return index;
+    },
+
     _buildSatelliteFromTLEName: function(satName, TLEData){
-      var index = TLEData.indexOf(satName);
+      var index = this._getSatelliteIndex(satName, TLEData);
       if (index === -1){
         return;
       }
@@ -395,6 +416,11 @@ function satelliteDatamap(target, settings){
           if(!sat) return;
 
           var latlng = sat.getAttitude();
+
+          // Nothing to plot
+          if (typeof(latlng)==="undefined") return;
+          if (isNaN(latlng.latitude) || isNaN(latlng.longitude)) return;
+
           var marker = {
             latitude: latlng.latitude,
             longitude: latlng.longitude,
@@ -431,6 +457,9 @@ function satelliteDatamap(target, settings){
       if (!Array.isArray(this._data.satelliteMarkers)){
         this._data.satelliteMarkers = [];
       }
+
+      // Can't go any further
+      if (typeof(latlng) === "undefined") return;
 
       satellite.marker = {
         radius: 8,
@@ -475,6 +504,9 @@ function satelliteDatamap(target, settings){
         latlng = satellite.getAttitude(dt_list[0], true);
         for (var i = 1; i<dt_list.length; i++){
           next_latlng = satellite.getAttitude(dt_list[i], true);
+
+          // Can't go any further
+          if (typeof(latlng)==="undefined" || typeof(next_latlng)==="undefined") return;
 
           if (Math.abs(next_latlng.longitude - latlng.longitude) < 170){
             trajectories.push({

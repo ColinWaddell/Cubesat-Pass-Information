@@ -119,7 +119,7 @@ Clyde Space Satellite Tracker
     // Pull satellite info
     var sat = satmap.getSatelliteInfo(satList[satIndex]);
 
-    if(sat){
+    if(sat && sat.attitude){
       var lat = (sat.attitude.latitude < 0 ? '' : '&nbsp;') + sat.attitude.latitude.toFixed(2)
       var lng = (sat.attitude.longitude < 0 ? '' : '&nbsp;') + sat.attitude.longitude.toFixed(2)
 
